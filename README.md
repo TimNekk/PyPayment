@@ -1,6 +1,6 @@
 # PyPayment
 
-![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) ![Python 3](https://img.shields.io/pypi/pyversions/nalog?color=blueviolet)
+![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) ![Python 3](https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet)
 
 **pypayment** - Payment providers API wrapper.
 
