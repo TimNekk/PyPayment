@@ -1,3 +1,5 @@
+<img src="https://mhmi.net/wp-content/uploads/2020/07/Invoice-Paid-Graphic.png" align="right" height="200">
+
 # PyPayment
 
 ![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) ![Python 3](https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet)
