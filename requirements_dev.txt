@@ -1,0 +1,2 @@
+environs==9.5.0
+pytest==7.1.2
