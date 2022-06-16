@@ -1,7 +1,12 @@
 import pytest
 
-from pypayment import QiwiPayment, Payment, PaymentStatus, AuthorizationError
+from pypayment import QiwiPayment, Payment, PaymentStatus, AuthorizationError, NotAuthorized
 from test import qiwi_secret_key
+
+
+def test_payment_creation_without_authorization():
+    with pytest.raises(NotAuthorized):
+        QiwiPayment(1)
 
 
 def test_authorization():
@@ -26,7 +31,13 @@ def test_payment_creation_with_float():
     assert payment is not None
 
 
-def test_payment_creation_with_long_float():
+def test_url_getting():
     QiwiPayment.authorize(secret_key=qiwi_secret_key)
-    payment: Payment = QiwiPayment(1.23456789)
-    assert payment is not None
+    payment: Payment = QiwiPayment(1)
+    assert "https://oplata.qiwi.com/form/?invoice_uid=" in payment.url
+
+
+def test_status_getting():
+    QiwiPayment.authorize(secret_key=qiwi_secret_key)
+    payment: Payment = QiwiPayment(1.23)
+    assert payment.status == PaymentStatus.WAITING
