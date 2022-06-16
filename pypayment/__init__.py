@@ -2,4 +2,4 @@ from .exceptions import NotAuthorized, PaymentCreationError, PaymentGettingError
 from .status import PaymentStatus
 from .payment import Payment
 from .qiwi import QiwiPayment
-from .yoomoneypayment import YooMoneyPayment, YooMoneyPaymentType
+from .yoomoney import YooMoneyPayment, YooMoneyPaymentType
