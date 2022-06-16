@@ -191,7 +191,7 @@ if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
 ```
 
-### YooMoney Payment Types
+#### YooMoney Payment Types
 
 Enum that represents every possible yoomoney payment type.
 
