@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Mapping
 
 import requests
 
@@ -11,7 +11,7 @@ class QiwiPayment(Payment):
     authorized = False
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
-    _expiration_duration: Optional[timedelta] = None
+    _expiration_duration: timedelta
     _API_URL = "https://api.qiwi.com/partner/bill/v1/bills/"
 
     def __init__(self,
@@ -45,7 +45,7 @@ class QiwiPayment(Payment):
         self._url = self._create()
 
     @classmethod
-    def _get_headers(cls) -> dict[str, str]:
+    def _get_headers(cls) -> Mapping[str, str]:
         return {
             "Authorization": f"Bearer {cls._secret_key}",
             "Content-Type": "application/json",
@@ -56,7 +56,7 @@ class QiwiPayment(Payment):
     def authorize(cls,
                   secret_key: str,
                   theme_code: Optional[str] = None,
-                  expiration_duration: Optional[timedelta] = timedelta(hours=1)) -> None:
+                  expiration_duration: timedelta = timedelta(hours=1)) -> None:
         """
         Must be called before the first use of the class!
 
@@ -108,7 +108,7 @@ class QiwiPayment(Payment):
         if response.status_code != 200:
             raise PaymentCreationError(response.text)
 
-        return response.json().get("payUrl")
+        return str(response.json().get("payUrl"))
 
     @property
     def url(self) -> str:
