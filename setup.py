@@ -32,7 +32,9 @@ setup(
     ],
     extras_require={
         'dev': [
-            'environs==9.5.0'
+            'environs==9.5.0',
+            'pytest==7.1.2',
+            'pytest-cov==3.0.0'
         ]
     },
 
