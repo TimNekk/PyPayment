@@ -45,7 +45,7 @@ class QiwiPayment(Payment):
         self._url = self._create()
 
     @classmethod
-    def _get_headers(cls):
+    def _get_headers(cls) -> dict[str, str]:
         return {
             "Authorization": f"Bearer {cls._secret_key}",
             "Content-Type": "application/json",
@@ -76,7 +76,7 @@ class QiwiPayment(Payment):
         cls._try_authorize()
 
     @classmethod
-    def _try_authorize(cls):
+    def _try_authorize(cls) -> None:
         try:
             response = requests.get(QiwiPayment._API_URL, headers=QiwiPayment._get_headers())
         except Exception as e:
@@ -108,7 +108,7 @@ class QiwiPayment(Payment):
         if response.status_code != 200:
             raise PaymentCreationError(response.text)
 
-        return json.loads(response.content).get("payUrl")
+        return response.json().get("payUrl")
 
     @property
     def url(self) -> str:
@@ -124,5 +124,4 @@ class QiwiPayment(Payment):
         if response.status_code != 200:
             raise PaymentGettingError(response.text)
 
-        print(json.loads(response.content))
-        return PaymentStatus[json.loads(response.content).get("status").get("value")]
+        return PaymentStatus[response.json().get("status").get("value")]
