@@ -2,7 +2,7 @@ from io import open
 from setuptools import setup
 
 
-version = '1.0.0'
+version = '1.1.0'
 name = 'pypayment'
 
 
@@ -23,7 +23,6 @@ setup(
     long_description_content_type='text/markdown',
 
     url='https://github.com/TimNekk/pypayment',
-    # download_url='',
 
     license='Apache License, Version 2.0, see LICENSE file',
 
@@ -48,6 +47,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Programming Language :: Python :: Implementation :: CPython',
     ]
