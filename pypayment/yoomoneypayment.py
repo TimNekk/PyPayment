@@ -15,7 +15,7 @@ class YooMoneyPaymentType(Enum):
     """Payment from phone balance."""
 
 
-class YooMoney(Payment):
+class YooMoneyPayment(Payment):
     _is_authorized = False
     _access_token: Optional[str] = None
     _account_id: Optional[str] = None
@@ -36,7 +36,7 @@ class YooMoney(Payment):
                  payment_type: Optional[YooMoneyPaymentType] = YooMoneyPaymentType.CARD,
                  success_url: Optional[str] = None):
         """
-        You need to YooMoney.authorize() first!
+        You need to YooMoneyPayment.authorize() first!
 
         Instantiation generates new YooMoney invoice instance right away.
 
@@ -46,14 +46,14 @@ class YooMoney(Payment):
         :param payment_type: YooMoneyPaymentType enum.
         :param success_url: User will be redirected to this url after paying.
 
-        :raise NotAuthorized: When class was not authorized with YooMoney.authorize()
+        :raise NotAuthorized: When class was not authorized with YooMoneyPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not YooMoney._is_authorized:
-            raise NotAuthorized("You need to authorize first: YooMoney.authorize()")
+        if not YooMoneyPayment._is_authorized:
+            raise NotAuthorized("You need to authorize first: YooMoneyPayment.authorize()")
 
-        self._payment_type = YooMoney._payment_type if payment_type is None else payment_type
-        self._success_url = YooMoney._success_url if success_url is None else success_url
+        self._payment_type = YooMoneyPayment._payment_type if payment_type is None else payment_type
+        self._success_url = YooMoneyPayment._success_url if success_url is None else success_url
 
         super().__init__(amount, description)
 
@@ -67,7 +67,7 @@ class YooMoney(Payment):
         """
         Gets access_token from client_id.
 
-        You need to call method only once, to get access_token required in YooMoney.authorize().
+        You need to call method only once, to get access_token required in YooMoneyPayment.authorize().
 
         :param client_id: client_id from https://yoomoney.ru/myservices/new
         :param redirect_uri: redirect_uri you specified when creating the application.
@@ -109,7 +109,7 @@ class YooMoney(Payment):
             return
 
         print(f"\n3)\tYour access token:\n",
-              f"\t(Save it and use in YooMoney.authorize())\n",
+              f"\t(Save it and use in YooMoneyPayment.authorize())\n",
               access_token)
 
         return access_token
@@ -133,15 +133,15 @@ class YooMoney(Payment):
         Tries to authorize to YooMoney API.
         Saves passed parameters as default.
 
-        :param access_token: Use YooMoney.get_access_token() to get it.
+        :param access_token: Use YooMoneyPayment.get_access_token() to get it.
         :param payment_type: YooMoneyPaymentType enum.
         :param success_url: User will be redirected to this url after paying.
 
         :raise PaymentCreationError: When authorization fails.
         """
-        YooMoney._access_token = access_token
-        YooMoney._payment_type = payment_type
-        YooMoney._success_url = success_url
+        YooMoneyPayment._access_token = access_token
+        YooMoneyPayment._payment_type = payment_type
+        YooMoneyPayment._success_url = success_url
 
         cls._try_authorize()
 
@@ -160,7 +160,7 @@ class YooMoney(Payment):
 
     def _create(self) -> str:
         data = {
-            "receiver": YooMoney._account_id,
+            "receiver": YooMoneyPayment._account_id,
             "quickpay-form": "shop",
             "targets": self.id,
             "paymentType": self._payment_type.value,
@@ -172,7 +172,7 @@ class YooMoney(Payment):
         }
 
         try:
-            response = requests.post(YooMoney._QUICKPAY_URL, headers=YooMoney._get_headers(), data=data)
+            response = requests.post(YooMoneyPayment._QUICKPAY_URL, headers=YooMoneyPayment._get_headers(), data=data)
         except Exception as e:
             raise PaymentCreationError(e)
 
@@ -188,7 +188,7 @@ class YooMoney(Payment):
     @property
     def status(self) -> PaymentStatus:
         try:
-            response = requests.post(YooMoney._OPERATION_HISTORY_URL, headers=YooMoney._get_headers(), data={"label": self.id})
+            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL, headers=YooMoneyPayment._get_headers(), data={"label": self.id})
         except Exception as e:
             raise PaymentGettingError(e)
 
