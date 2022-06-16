@@ -9,35 +9,31 @@ def test_payment_creation_without_authorization():
         QiwiPayment(1)
 
 
-def test_authorization():
-    QiwiPayment.authorize(secret_key=qiwi_secret_key)
-    assert QiwiPayment.authorized
-
-
 def test_authorization_with_invalid_key():
     with pytest.raises(AuthorizationError):
         QiwiPayment.authorize(secret_key="invalid key")
 
 
-def test_payment_creation():
+def test_authorization():
     QiwiPayment.authorize(secret_key=qiwi_secret_key)
+    assert QiwiPayment.authorized
+
+
+def test_payment_creation():
     payment: Payment = QiwiPayment(1)
     assert payment is not None
 
 
 def test_payment_creation_with_float():
-    QiwiPayment.authorize(secret_key=qiwi_secret_key)
     payment: Payment = QiwiPayment(1.23)
     assert payment is not None
 
 
 def test_url_getting():
-    QiwiPayment.authorize(secret_key=qiwi_secret_key)
     payment: Payment = QiwiPayment(1)
     assert "https://oplata.qiwi.com/form/?invoice_uid=" in payment.url
 
 
 def test_status_getting():
-    QiwiPayment.authorize(secret_key=qiwi_secret_key)
     payment: Payment = QiwiPayment(1.23)
     assert payment.status == PaymentStatus.WAITING

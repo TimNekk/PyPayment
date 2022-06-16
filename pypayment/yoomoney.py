@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Mapping
 
 import requests
 
@@ -17,9 +17,9 @@ class YooMoneyPaymentType(Enum):
 
 class YooMoneyPayment(Payment):
     authorized = False
-    _access_token: Optional[str] = None
+    _access_token: str
     _account_id: Optional[str] = None
-    _payment_type: Optional[YooMoneyPaymentType] = None
+    _payment_type: YooMoneyPaymentType
     _success_url: Optional[str] = None
     _BASE_URL = "https://yoomoney.ru"
     _OAUTH_URL = _BASE_URL + "/oauth"
@@ -84,10 +84,10 @@ class YooMoneyPayment(Payment):
             data["instance_name"] = instance_name
 
         response = requests.post(cls._AUTHORIZE_URL, data=data)
-        print(f"1)\tGo to this URL and give access to the application\n",
+        print("1)\tGo to this URL and give access to the application\n",
               f"\t{response.url}\n\n",
               f"2)\tAfter accepting you will be redirected to {redirect_uri}?code=YOUR_CODE_VALUE with \"code\" as query parameter")
-        code = input(f"\tCopy YOUR_CODE_VALUE OR whole redirect url and paste it here: ")
+        code = input("\tCopy YOUR_CODE_VALUE OR whole redirect url and paste it here: ")
 
         try:
             code = code[code.index("code=") + 5:].replace(" ", "")
@@ -106,16 +106,16 @@ class YooMoneyPayment(Payment):
 
         if access_token == "":
             print("\n3)\tSomething went wrong, try again")
-            return
+            return ""
 
-        print(f"\n3)\tYour access token:\n",
-              f"\t(Save it and use in YooMoneyPayment.authorize())\n",
+        print("\n3)\tYour access token:\n",
+              "\t(Save it and use in YooMoneyPayment.authorize())\n",
               access_token)
 
         return access_token
 
     @classmethod
-    def _get_headers(cls) -> dict[str, str]:
+    def _get_headers(cls) -> Mapping[str, str]:
         return {
             "Authorization": f"Bearer {cls._access_token}",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -125,7 +125,7 @@ class YooMoneyPayment(Payment):
     @classmethod
     def authorize(cls,
                   access_token: str,
-                  payment_type: Optional[YooMoneyPaymentType] = YooMoneyPaymentType.CARD,
+                  payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
                   success_url: Optional[str] = None) -> None:
         """
         Must be called before the first use of the class!
@@ -179,7 +179,7 @@ class YooMoneyPayment(Payment):
         if response.status_code != 200:
             raise PaymentCreationError(response.text)
 
-        return response.url
+        return str(response.url)
 
     @property
     def url(self) -> str:
@@ -195,7 +195,7 @@ class YooMoneyPayment(Payment):
         if response.status_code != 200:
             raise PaymentGettingError(response.text)
 
-        operations: list = response.json().get("operations")
+        operations = response.json().get("operations")
 
         if operations:
             status = operations[0].get("status")
