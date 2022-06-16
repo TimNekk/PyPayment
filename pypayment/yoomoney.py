@@ -16,7 +16,7 @@ class YooMoneyPaymentType(Enum):
 
 
 class YooMoneyPayment(Payment):
-    _is_authorized = False
+    authorized = False
     _access_token: Optional[str] = None
     _account_id: Optional[str] = None
     _payment_type: Optional[YooMoneyPaymentType] = None
@@ -49,7 +49,7 @@ class YooMoneyPayment(Payment):
         :raise NotAuthorized: When class was not authorized with YooMoneyPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not YooMoneyPayment._is_authorized:
+        if not YooMoneyPayment.authorized:
             raise NotAuthorized("You need to authorize first: YooMoneyPayment.authorize()")
 
         self._payment_type = YooMoneyPayment._payment_type if payment_type is None else payment_type
@@ -152,11 +152,11 @@ class YooMoneyPayment(Payment):
         except Exception as e:
             raise AuthorizationError(e)
 
-        if response.status_code == 401:
+        if response.status_code != 200:
             raise AuthorizationError("Access Token is invalid.")
 
         cls._account_id = response.json().get('account')
-        cls._is_authorized = True
+        cls.authorized = True
 
     def _create(self) -> str:
         data = {

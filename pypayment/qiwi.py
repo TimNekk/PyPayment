@@ -8,7 +8,7 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationErro
 
 
 class QiwiPayment(Payment):
-    _is_authorized = False
+    authorized = False
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
     _expiration_duration: Optional[timedelta] = None
@@ -34,7 +34,7 @@ class QiwiPayment(Payment):
         :raise NotAuthorized: When class was not authorized with QiwiPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not QiwiPayment._is_authorized:
+        if not QiwiPayment.authorized:
             raise NotAuthorized("You need to authorize first: QiwiPayment.authorize()")
 
         self._theme_code = QiwiPayment._theme_code if theme_code is None else theme_code
@@ -85,7 +85,7 @@ class QiwiPayment(Payment):
         if response.status_code == 401:
             raise AuthorizationError("Secret key is invalid.")
 
-        cls._is_authorized = True
+        cls.authorized = True
 
     def _create(self) -> str:
         data = {
