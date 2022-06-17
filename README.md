@@ -2,7 +2,9 @@
 
 # PyPayment
 
-![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) ![Python 3](https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet)
+![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) 
+![Python 3](https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet) 
+![Tests](https://github.com/TimNekk/pypayment/actions/workflows/tests.yml/badge.svg)
 
 **pypayment** - Payment providers API wrapper.
 
