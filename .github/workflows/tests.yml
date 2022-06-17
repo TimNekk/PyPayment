@@ -23,10 +23,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Make envfile
-      uses: SpicyPizza/create-envfile@v1
+      uses: ozaytsev86/create-env-file@v1
       with:
-        envkey_qiwi_secret_key: ${{ secrets.QIWI_SECRET_KEY }}
-        envkey_yoomoney_access_token: ${{ secrets.YOOMONEY_ACCESS_TOKEN }}
+        ENV_qiwi_secret_key: ${{ secrets.QIWI_SECRET_KEY }}
+        ENV_yoomoney_access_token: ${{ secrets.YOOMONEY_ACCESS_TOKEN }}
         file_name: .env
     - name: Test with tox
       run: tox
