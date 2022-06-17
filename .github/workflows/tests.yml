@@ -22,11 +22,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
-    - name: Make envfile
-      uses: ozaytsev86/create-env-file@v1
-      with:
-        ENV_qiwi_secret_key: ${{ secrets.QIWI_SECRET_KEY }}
-        ENV_yoomoney_access_token: ${{ secrets.YOOMONEY_ACCESS_TOKEN }}
-        file_name: .env
+    - name: Create .env file
+      run: |
+        touch .env
+        echo qiwi_secret_key=${{ secrets.QIWI_SECRET_KEY }} >> .env
+        echo yoomoney_access_token=${{ secrets.YOOMONEY_ACCESS_TOKEN }} >> .env
+        cat .env
     - name: Test with tox
       run: tox
