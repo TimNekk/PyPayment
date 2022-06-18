@@ -49,14 +49,16 @@ You can set default parameters for every `QiwiPayment` instance.
 
 - `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
 - `expiration_duration` - Time that the invoice will be available for payment.
+- `payment_type` - [QiwiPaymentType](#Qiwi Payment Types) enum.
 
 ```python
-from pypayment import QiwiPayment
+from pypayment import QiwiPayment, QiwiPaymentType
 from datetime import timedelta
 
 QiwiPayment.authorize("my_secret_key",
                       theme_code="my_theme_code",
-                      expiration_duration=timedelta(hours=1))
+                      expiration_duration=timedelta(hours=1),
+                      payment_type=QiwiPaymentType.CARD)
 ```
 
 #### Creating invoice
@@ -73,20 +75,22 @@ payment: Payment = QiwiPayment(amount=123.45)
 print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id
 ```
 
-And 3 optional parameters that will override default ones for specific instance.
+And 4 optional parameters that will override default ones for specific instance.
 
 - `description` - Payment comment that will be displayed to user.
 - `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
 - `expiration_duration` - Time that the invoice will be available for payment.
+- `payment_type` - [QiwiPaymentType](#Qiwi Payment Types) enum.
 
 ```python
-from pypayment import Payment, QiwiPayment
+from pypayment import Payment, QiwiPayment, QiwiPaymentType
 from datetime import timedelta
 
 different_payment: Payment = QiwiPayment(amount=987.65,
                                          description="Flower pot",
                                          theme_code="my_new_theme_code",
-                                         expiration_duration=timedelta(days=3))
+                                         expiration_duration=timedelta(days=3),
+                                         payment_type=QiwiPaymentType.CARD)
 
 print(different_payment.url) # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id_2
 ```
@@ -105,6 +109,14 @@ payment: Payment = QiwiPayment(100)
 if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
 ```
+
+#### Qiwi Payment Types
+
+Enum `QiwiPaymentType` that represents every possible Qiwi payment type.
+
+- `WALLET` - Payment with Qiwi wallet.
+- `CARD` - Payment with bank card.
+- `ALL` - Payment with every type possible.
 
 ### YooMoney
 
@@ -136,7 +148,7 @@ YooMoneyPayment.authorize("my_access_token")
 
 You can set default parameters for every `YooMoneyPayment` instance.
 
-- `payment_type` - [Payment type](#YooMoney Payment Types)
+- `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -164,7 +176,7 @@ print(payment.url)  # https://yoomoney.ru/transfer/quickpay?requestId=XXXXXXXXXX
 And 3 optional parameters that will override default ones for specific instance.
 
 - `description` - Payment comment that will be displayed to user.
-- `payment_type` - [Payment type](#YooMoney Payment Types)
+- `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -195,7 +207,7 @@ if payment.status == PaymentStatus.PAID:
 
 #### YooMoney Payment Types
 
-Enum that represents every possible yoomoney payment type.
+Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
 
 - `WALLET` - Payment with YooMoney wallet.
 - `CARD` - Payment with bank card.
