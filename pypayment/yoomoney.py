@@ -33,7 +33,7 @@ class YooMoneyPayment(Payment):
     def __init__(self,
                  amount: float,
                  description: str = "",
-                 payment_type: Optional[YooMoneyPaymentType] = YooMoneyPaymentType.CARD,
+                 payment_type: Optional[YooMoneyPaymentType] = None,
                  success_url: Optional[str] = None):
         """
         You need to YooMoneyPayment.authorize() first!
