@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from enum import Enum
 from typing import Optional, Mapping
 
 import requests
@@ -7,18 +8,29 @@ import requests
 from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError
 
 
+class QiwiPaymentType(Enum):
+    WALLET = "qw"
+    """Payment with Qiwi wallet."""
+    CARD = "card"
+    """Payment with bank card."""
+    ALL = ""
+    """Payment with every type possible."""
+
+
 class QiwiPayment(Payment):
     authorized = False
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
     _expiration_duration: timedelta
+    _payment_type: QiwiPaymentType
     _API_URL = "https://api.qiwi.com/partner/bill/v1/bills/"
 
     def __init__(self,
                  amount: float,
                  description: str = "",
                  theme_code: Optional[str] = None,
-                 expiration_duration: Optional[timedelta] = None):
+                 expiration_duration: Optional[timedelta] = None,
+                 payment_type: Optional[QiwiPaymentType] = None):
         """
         You need to QiwiPayment.authorize() first!
 
@@ -30,6 +42,7 @@ class QiwiPayment(Payment):
         :param description: Payment comment.
         :param theme_code: Theme code from https://qiwi.com/p2p-admin/transfers/link
         :param expiration_duration: Time that the invoice will be available for payment.
+        :param payment_type: QiwiPaymentType enum.
 
         :raise NotAuthorized: When class was not authorized with QiwiPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
@@ -39,6 +52,7 @@ class QiwiPayment(Payment):
 
         self._theme_code = QiwiPayment._theme_code if theme_code is None else theme_code
         self._expiration_duration = QiwiPayment._expiration_duration if expiration_duration is None else expiration_duration
+        self._payment_type = QiwiPayment._payment_type if payment_type is None else payment_type
 
         super().__init__(amount, description)
 
@@ -56,7 +70,8 @@ class QiwiPayment(Payment):
     def authorize(cls,
                   secret_key: str,
                   theme_code: Optional[str] = None,
-                  expiration_duration: timedelta = timedelta(hours=1)) -> None:
+                  expiration_duration: timedelta = timedelta(hours=1),
+                  payment_type: QiwiPaymentType = QiwiPaymentType.ALL) -> None:
         """
         Must be called before the first use of the class!
 
@@ -66,12 +81,14 @@ class QiwiPayment(Payment):
         :param secret_key: Secret key from https://qiwi.com/p2p-admin/transfers/api
         :param theme_code: Theme code from https://qiwi.com/p2p-admin/transfers/link
         :param expiration_duration: The time that the invoice will be available for payment.
+        :param payment_type: QiwiPaymentType enum.
 
         :raise PaymentCreationError: When authorization fails.
         """
         QiwiPayment._secret_key = secret_key
         QiwiPayment._theme_code = theme_code
         QiwiPayment._expiration_duration = expiration_duration
+        QiwiPayment._payment_type = payment_type
 
         cls._try_authorize()
 
@@ -97,6 +114,7 @@ class QiwiPayment(Payment):
             "expirationDateTime": (datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat(),
             "customFields": {
                 "themeCode": self._theme_code,
+                "paySourcesFilter": self._payment_type.value
             }
         }
 
