@@ -223,7 +223,7 @@ Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
 
 #### Charge Commission
 
-Enum `ChargeCommission` that represents who will be charged the commission.
+Enum `ChargeCommission` that represents who will be charged the commission ([YooMoney commission](https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions)).
 
 - `FROM_CUSTOMER` - Charge commission from customer.
 - `FROM_SELLER` - Charge commission from seller.
