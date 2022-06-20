@@ -33,6 +33,8 @@ It has 2 properties:
 from pypayment import Payment
 ```
 
+<img src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/1024/Qiwi-icon.png" align="left" height="40">
+
 ### Qiwi
 
 #### Authorization
@@ -117,6 +119,8 @@ Enum `QiwiPaymentType` that represents every possible Qiwi payment type.
 - `WALLET` - Payment with Qiwi wallet.
 - `CARD` - Payment with bank card.
 - `ALL` - Payment with every type possible.
+
+<img src="https://static.insales-cdn.com/files/1/19/20037651/original/_.png" align="left" height="40">
 
 ### YooMoney
 
