@@ -3,7 +3,7 @@ from typing import Optional, Mapping
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError
+from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission
 
 
 class YooMoneyPaymentType(Enum):
@@ -20,6 +20,7 @@ class YooMoneyPayment(Payment):
     _access_token: str
     _account_id: Optional[str] = None
     _payment_type: YooMoneyPaymentType
+    _charge_commission: ChargeCommission
     _success_url: Optional[str] = None
     _BASE_URL = "https://yoomoney.ru"
     _OAUTH_URL = _BASE_URL + "/oauth"
@@ -34,6 +35,7 @@ class YooMoneyPayment(Payment):
                  amount: float,
                  description: str = "",
                  payment_type: Optional[YooMoneyPaymentType] = None,
+                 charge_commission: Optional[ChargeCommission] = None,
                  success_url: Optional[str] = None):
         """
         You need to YooMoneyPayment.authorize() first!
@@ -53,6 +55,7 @@ class YooMoneyPayment(Payment):
             raise NotAuthorized("You need to authorize first: YooMoneyPayment.authorize()")
 
         self._payment_type = YooMoneyPayment._payment_type if payment_type is None else payment_type
+        self._charge_commission = YooMoneyPayment._charge_commission if charge_commission is None else charge_commission
         self._success_url = YooMoneyPayment._success_url if success_url is None else success_url
 
         super().__init__(amount, description)
@@ -126,6 +129,7 @@ class YooMoneyPayment(Payment):
     def authorize(cls,
                   access_token: str,
                   payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
+                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
                   success_url: Optional[str] = None) -> None:
         """
         Must be called before the first use of the class!
@@ -135,12 +139,14 @@ class YooMoneyPayment(Payment):
 
         :param access_token: Use YooMoneyPayment.get_access_token() to get it.
         :param payment_type: YooMoneyPaymentType enum.
+        :param charge_commission: ChargeCommission enum.
         :param success_url: User will be redirected to this url after paying.
 
         :raise PaymentCreationError: When authorization fails.
         """
         YooMoneyPayment._access_token = access_token
         YooMoneyPayment._payment_type = payment_type
+        YooMoneyPayment._charge_commission = charge_commission
         YooMoneyPayment._success_url = success_url
 
         cls._try_authorize()
@@ -164,7 +170,7 @@ class YooMoneyPayment(Payment):
             "quickpay-form": "shop",
             "targets": self.id,
             "paymentType": self._payment_type.value,
-            "sum": self.amount,
+            "sum": self.sum_with_commission,
             "formcomment": self.description,
             "short-dest": self.description,
             "label": self.id,
@@ -180,6 +186,21 @@ class YooMoneyPayment(Payment):
             raise PaymentCreationError(response.text)
 
         return str(response.url)
+
+    @property
+    def sum_with_commission(self) -> float:
+        if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
+            if self._payment_type == YooMoneyPaymentType.WALLET:
+                # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=YooMoney%20wallet%0APC,and%202%C2%A0kopecks.
+                commission_multiplier = 0.005
+                return self.amount * (1 + commission_multiplier)
+
+            elif self._payment_type == YooMoneyPaymentType.CARD:
+                # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=Bank%20card%0AAC,get%20980%C2%A0rubles.
+                commission_multiplier = 0.02
+                return self.amount / (1 - commission_multiplier)
+
+        return self.amount
 
     @property
     def url(self) -> str:
