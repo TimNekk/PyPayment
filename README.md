@@ -149,13 +149,15 @@ YooMoneyPayment.authorize("my_access_token")
 You can set default parameters for every `YooMoneyPayment` instance.
 
 - `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
+- `charge_commission` - [Charge Commission](#Charge Commission) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
-from pypayment import YooMoneyPayment, YooMoneyPaymentType
+from pypayment import YooMoneyPayment, YooMoneyPaymentType, ChargeCommission
 
 YooMoneyPayment.authorize("my_access_token",
                           payment_type=YooMoneyPaymentType.CARD,
+                          charge_commission=ChargeCommission.FROM_CUSTOMER,
                           success_url="my_success_url.com")
 ```
 
@@ -177,14 +179,16 @@ And 3 optional parameters that will override default ones for specific instance.
 
 - `description` - Payment comment that will be displayed to user.
 - `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
+- `charge_commission` - [Charge Commission](#Charge Commission) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
-from pypayment import Payment, YooMoneyPayment, YooMoneyPaymentType
+from pypayment import Payment, YooMoneyPayment, YooMoneyPaymentType, ChargeCommission
 
 different_payment: Payment = YooMoneyPayment(amount=987.65,
                                              description="Flower pot",
                                              payment_type=YooMoneyPaymentType.CARD,
+                                             charge_commission=ChargeCommission.FROM_CUSTOMER,
                                              success_url="my_success_url.com")
 
 print(different_payment.url)  # https://yoomoney.ru/transfer/quickpay?requestId=XXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -212,6 +216,13 @@ Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
 - `WALLET` - Payment with YooMoney wallet.
 - `CARD` - Payment with bank card.
 - `PHONE` - Payment from phone balance.
+
+#### Charge Commission
+
+Enum `ChargeCommission` that represents who will be charged the commission.
+
+- `FROM_CUSTOMER` - Charge commission from customer.
+- `FROM_SELLER` - Charge commission from seller.
 
 ### Payment Statuses
 
