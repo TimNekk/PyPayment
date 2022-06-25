@@ -11,6 +11,7 @@
 Available providers:
 - [Qiwi P2P](https://p2p.qiwi.com/) ([Usage](#qiwi))
 - [YooMoney](https://yoomoney.ru/) ([Usage](#yoomoney))
+- [PayOk](https://payok.io/) ([Usage](#yoomoney))
 
 ## Installation
 
@@ -55,7 +56,7 @@ You can set default parameters for every `QiwiPayment` instance.
 
 - `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
 - `expiration_duration` - Time that the invoice will be available for payment.
-- `payment_type` - [QiwiPaymentType](#Qiwi Payment Types) enum.
+- `payment_type` - [QiwiPaymentType](#qiwi-payment-types) enum.
 
 ```python
 from pypayment import QiwiPayment, QiwiPaymentType
@@ -86,7 +87,7 @@ And 4 optional parameters that will override default ones for specific instance.
 - `description` - Payment comment that will be displayed to user.
 - `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
 - `expiration_duration` - Time that the invoice will be available for payment.
-- `payment_type` - [QiwiPaymentType](#Qiwi Payment Types) enum.
+- `payment_type` - [QiwiPaymentType](#qiwi-payment-types) enum.
 
 ```python
 from pypayment import Payment, QiwiPayment, QiwiPaymentType
@@ -105,7 +106,7 @@ _Recommended to put `QiwiPayment` into `Payment` variable to keep unification._
 
 #### Getting status
 
-To get payment [status](#Payment Statuses), you need to use `status` property.
+To get payment [status](#payment-statuses), you need to use `status` property.
 
 ```python
 from pypayment import Payment, QiwiPayment, PaymentStatus
@@ -152,7 +153,7 @@ YooMoneyPayment.get_access_token(client_id="my_client_id",
 
 #### Authorization
 
-Before using `YooMoneyPayment` class you must authorize with [access_token](#Getting access token).
+Before using `YooMoneyPayment` class you must authorize with [access_token](#getting-access-token).
 
 ```python
 from pypayment import YooMoneyPayment
@@ -162,8 +163,8 @@ YooMoneyPayment.authorize("my_access_token")
 
 You can set default parameters for every `YooMoneyPayment` instance.
 
-- `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
-- `charge_commission` - [Charge Commission](#Charge Commission) enum.
+- `payment_type` - [YooMoney Payment Type](#yoomoney-payment-types) enum.
+- `charge_commission` - [Charge Commission](#charge-commission) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -192,8 +193,8 @@ print(payment.url)  # https://yoomoney.ru/transfer/quickpay?requestId=XXXXXXXXXX
 And 3 optional parameters that will override default ones for specific instance.
 
 - `description` - Payment comment that will be displayed to user.
-- `payment_type` - [YooMoney Payment Type](#YooMoney Payment Types) enum.
-- `charge_commission` - [Charge Commission](#Charge Commission) enum.
+- `payment_type` - [YooMoney Payment Type](#yoomoney-payment-types) enum.
+- `charge_commission` - [Charge Commission](#charge-commission) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -212,7 +213,7 @@ _Recommended to put `YooMoneyPayment` into `Payment` variable to keep unificatio
 
 #### Getting status
 
-To get payment [status](#Payment Statuses), you need to use `status` property.
+To get payment [status](#payment-statuses), you need to use `status` property.
 
 ```python
 from pypayment import Payment, YooMoneyPayment, PaymentStatus
@@ -258,8 +259,8 @@ PayOkPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_
 
 You can set default parameters for every `PayOkPayment` instance.
 
-- `payment_type` - [PayOkPaymentType](#PayOk Payment Types) enum.
-- `currency` - [PayOkCurrency](#PayOk Currency) enum.
+- `payment_type` - [PayOkPaymentType](#payok-payment-types) enum.
+- `currency` - [PayOkCurrency](#payok-currency) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -288,8 +289,8 @@ print(payment.url)  # https://payok.io/pay?amount=XXX&...
 And 4 optional parameters that will override default ones for specific instance.
 
 - `description` - Payment comment that will be displayed to user.
-- `payment_type` - [PayOkPaymentType](#PayOk Payment Types) enum.
-- `currency` - [PayOkCurrency](#PayOk Currency) enum.
+- `payment_type` - [PayOkPaymentType](#payok-payment-types) enum.
+- `currency` - [PayOkCurrency](#payok-currency) enum.
 - `success_url` - User will be redirected to this url after paying.
 
 ```python
@@ -308,7 +309,7 @@ _Recommended to put `PayOkPayment` into `Payment` variable to keep unification._
 
 #### Getting status
 
-To get payment [status](#Payment Statuses), you need to use `status` property.
+To get payment [status](#payment-statuses), you need to use `status` property.
 
 ```python
 from pypayment import Payment, PayOkPayment, PaymentStatus
