@@ -33,9 +33,13 @@ It has 2 properties:
 from pypayment import Payment
 ```
 
-<img src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/1024/Qiwi-icon.png" align="left" height="40">
 
-### Qiwi
+<details>
+  <summary>
+    <img src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/1024/Qiwi-icon.png" align="left" height="40">
+    <br><br>
+    <b>Qiwi</b>
+  </summary>
 
 #### Authorization
 
@@ -120,9 +124,15 @@ Enum `QiwiPaymentType` that represents every possible Qiwi payment type.
 - `CARD` - Payment with bank card.
 - `ALL` - Payment with every type possible.
 
-<img src="https://static.insales-cdn.com/files/1/19/20037651/original/_.png" align="left" height="40">
+</details>
 
-### YooMoney
+
+<details>
+  <summary>
+    <img src="https://static.insales-cdn.com/files/1/19/20037651/original/_.png" align="left" height="40">
+    <br><br>
+    <b>YooMoney</b>
+  </summary>
 
 #### Getting access token
 
@@ -221,6 +231,131 @@ Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
 - `CARD` - Payment with bank card.
 - `PHONE` - Payment from phone balance.
 
+</details>
+
+
+<details>
+  <summary>
+    <img src="https://payok.io/files/image/logo_white.svg" align="left" height="40">
+    <br><br>
+    <b>PayOk</b>
+  </summary>
+
+#### Authorization
+
+Before using `PayOkPayment` class you must authorize with:
+
+- [API Key](https://payok.io/cabinet/api.php)
+- [API ID](https://payok.io/cabinet/api.php)
+- [Shop ID](https://payok.io/cabinet/main.php)
+- [Shop secret key](https://payok.io/cabinet/main.php)
+
+```python
+from pypayment import PayOkPayment
+
+PayOkPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_key")
+```
+
+You can set default parameters for every `PayOkPayment` instance.
+
+- `payment_type` - [PayOkPaymentType](#PayOk Payment Types) enum.
+- `currency` - [PayOkCurrency](#PayOk Currency) enum.
+- `success_url` - User will be redirected to this url after paying.
+
+```python
+from pypayment import PayOkPayment, PayOkPaymentType, PayOkCurrency
+
+PayOkPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_key",
+                        payment_type=PayOkPaymentType.CARD,
+                        currency=PayOkCurrency.RUB,
+                        success_url="my_success_url.com")
+```
+
+#### Creating invoice
+
+To created new PayOk invoice, you need to instantiate `PayOkPayment` with 1 required parameter.
+
+- `amount` - The amount to be invoiced.
+
+```python
+from pypayment import Payment, PayOkPayment
+
+payment: Payment = PayOkPayment(amount=123)
+
+print(payment.url)  # https://payok.io/pay?amount=XXX&...
+```
+
+And 4 optional parameters that will override default ones for specific instance.
+
+- `description` - Payment comment that will be displayed to user.
+- `payment_type` - [PayOkPaymentType](#PayOk Payment Types) enum.
+- `currency` - [PayOkCurrency](#PayOk Currency) enum.
+- `success_url` - User will be redirected to this url after paying.
+
+```python
+from pypayment import Payment, PayOkPayment, PayOkPaymentType, PayOkCurrency
+
+different_payment: Payment = PayOkPayment(amount=987.65,
+                                          description="Flower pot",
+                                          payment_type=PayOkPaymentType.CARD,
+                                          currency=PayOkCurrency.RUB,
+                                          success_url="my_success_url.com")
+
+print(different_payment.url) # https://payok.io/pay?amount=XXX&...
+```
+
+_Recommended to put `PayOkPayment` into `Payment` variable to keep unification._
+
+#### Getting status
+
+To get payment [status](#Payment Statuses), you need to use `status` property.
+
+```python
+from pypayment import Payment, PayOkPayment, PaymentStatus
+
+payment: Payment = PayOkPayment(100)
+
+if payment.status == PaymentStatus.PAID:
+    print("Got ur money!")  # Got ur money!
+```
+
+#### PayOk Payment Types
+
+Enum `PayOkPaymentType` that represents every possible PayOk payment type.
+
+- `CARD` - Payment with bank card.
+- `QIWI` - Payment with QIWI.
+- `YOOMONEY` - Payment with YooMoney.
+- `WEBMONEY` - Payment with WebMoney.
+- `PAYEER` - Payment with Payeer.
+- `PERFECT_MONEY` - Payment with Perfect Money.
+- `ADVCASH` - Payment with Advcash.
+- `BEELINE` - Payment with Beeline.
+- `MEGAFON` - Payment with Megafon.
+- `TELE2` - Payment with Tele2.
+- `MTS` - Payment with MTS.
+- `QIWI_MOBILE` - Payment with QIWI Mobile.
+- `BITCOIN` - Payment with Bitcoin.
+- `LITECOIN` - Payment with Litecoin.
+- `DOGECOIN` - Payment with Dogecoin.
+- `DASH` - Payment with Dash.
+- `ZCASH` - Payment with Zcash.
+
+#### PayOk Currency
+
+Enum `PayOkCurrency` that represents every possible PayOk currency.
+
+- `RUB` - Russian ruble.
+- `UAH` - Ukrainian hryvnia.
+- `USD` - United States dollar.
+- `EUR` - Euro.
+- `RUB2` - Russian ruble. _(Alternative Gateway)_
+
+</details>
+
+
+## Enums
+
 #### Charge Commission
 
 Enum `ChargeCommission` that represents who will be charged the commission ([YooMoney commission](https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions)).
@@ -228,7 +363,7 @@ Enum `ChargeCommission` that represents who will be charged the commission ([Yoo
 - `FROM_CUSTOMER` - Charge commission from customer.
 - `FROM_SELLER` - Charge commission from seller.
 
-### Payment Statuses
+#### Payment Statuses
 
 Enum that represents every possible status of the invoice.
 
@@ -237,7 +372,8 @@ Enum that represents every possible status of the invoice.
 - `REJECTED` - Payment was rejected.
 - `EXPIRED` - Payment has expired.
 
-### Exceptions
+
+## Exceptions
 
 - `NotAuthorized` - Raised when payment provider class has not been authorized.
 - `AuthorizationError` - Raised when authorization failed.
