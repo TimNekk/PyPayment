@@ -42,7 +42,7 @@ class PayOkPaymentType(Enum):
     DASH = "ds"
     """Payment with Dash."""
     ZCASH = "zc"
-    """Payment with Zcash."""
+    """Payment with ZСash."""
 
 
 class PayOkCurrency(Enum):
