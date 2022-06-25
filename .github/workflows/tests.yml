@@ -27,6 +27,10 @@ jobs:
         touch .env
         echo qiwi_secret_key=${{ secrets.QIWI_SECRET_KEY }} >> .env
         echo yoomoney_access_token=${{ secrets.YOOMONEY_ACCESS_TOKEN }} >> .env
+        echo payok_api_key=${{ secrets.PAYOK_API_KEY }} >> .env
+        echo payok_api_id=${{ secrets.PAYOK_API_ID }} >> .env
+        echo payok_shop_id=${{ secrets.PAYOK_SHOP_ID }} >> .env
+        echo payok_shop_secret_key=${{ secrets.PAYOK_SHOP_SECRET_KEY }} >> .env
         cat .env
     - name: Test with tox
       run: tox
