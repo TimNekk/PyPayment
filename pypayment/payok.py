@@ -21,7 +21,7 @@ class PayOkPaymentType(Enum):
     """Payment with Payeer."""
     PERFECT_MONEY = "pm"
     """Payment with Perfect Money."""
-    ADVCHASH = "ad"
+    ADVCASH = "ad"
     """Payment with Advcash."""
     BEELINE = "bl"
     """Payment with Beeline."""
@@ -55,7 +55,7 @@ class PayOkCurrency(Enum):
     EUR = "EUR"
     """Euro."""
     RUB2 = "RUB2"
-    """Russian ruble (Alternative Gateway)"""
+    """Russian ruble. (Alternative Gateway)"""
 
 
 class PayOkPayment(Payment):
