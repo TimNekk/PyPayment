@@ -101,7 +101,7 @@ class PayOkPayment(Payment):
         self._success_url = PayOkPayment._success_url if success_url is None else success_url
 
         super().__init__(amount, description)
-        self.id = str(self.id[:16])
+        self.id: str = str(self.id[:16])
         if not description:
             self.description = self.id
 
