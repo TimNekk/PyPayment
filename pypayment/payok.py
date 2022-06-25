@@ -155,7 +155,7 @@ class PayOkPayment(Payment):
             raise AuthorizationError(e)
 
         if response.json().get("status") == "error":
-            raise AuthorizationError(response.json().get("error_text"))
+            raise AuthorizationError(response.json())
 
         data = {
             "amount": 1,
