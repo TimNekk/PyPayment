@@ -213,7 +213,7 @@ class PayOkPayment(Payment):
             return PaymentStatus.WAITING
 
         if response.get("status") == "success":
-            if response.get("transaction_status") == "1":
+            if response.get("1").get("transaction_status") == "1":
                 return PaymentStatus.PAID
             else:
                 return PaymentStatus.WAITING
