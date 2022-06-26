@@ -212,7 +212,7 @@ class PayOkPayment(Payment):
         if response.get("status") == "error" and response.get("error_code") == "10":
             return PaymentStatus.WAITING
 
-        if response.get("status") == "success":
+        if response.get("status") == "success" and response.get("transaction_status") == "1":
             return PaymentStatus.PAID
 
         raise PaymentGettingError(response)
