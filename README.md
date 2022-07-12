@@ -1,14 +1,31 @@
-<img src="https://mhmi.net/wp-content/uploads/2020/07/Invoice-Paid-Graphic.png" align="right" height="200">
+<h1 align="center">
+  <br>
+  <img src="logo.png" alt="PyPayment" width="200"></a>
+  <br>
+  PyPayment
+  <br>
+</h1>
 
-# PyPayment
+<h4 align="center">Payment providers API wrapper.</h4>
 
-![PyPI](https://img.shields.io/pypi/v/pypayment?color=orange) 
-![Python 3](https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet) 
-![Tests](https://github.com/TimNekk/pypayment/actions/workflows/tests.yml/badge.svg)
+<p align="center">
+    <img src="https://img.shields.io/pypi/v/pypayment?color=orange" alt="PyPI">
+    <img src="https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet" alt="Python 3">
+    <img src="https://github.com/TimNekk/pypayment/actions/workflows/tests.yml/badge.svg" alt="Tests">
 
-**pypayment** - Payment providers API wrapper.
+</p>
 
-Available providers:
+<p align="center">
+  <a href="#available-providers">Providers</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#enums">Enums</a> •
+  <a href="#exceptions">Exceptions</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#license">License</a>
+</p>
+
+## Providers:
 - [Qiwi P2P](https://p2p.qiwi.com/) ([Usage](#qiwi))
 - [YooMoney](https://yoomoney.ru/) ([Usage](#yoomoney))
 - [PayOk](https://payok.io/) ([Usage](#yoomoney))
