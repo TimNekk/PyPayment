@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="#available-providers">Providers</a> •
+  <a href="#providers">Providers</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#enums">Enums</a> •
