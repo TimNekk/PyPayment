@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="logo.png" alt="PyPayment" width="200"></a>
+  <img src="logo.png" alt="PyPayment" height="300"></a>
   <br>
   PyPayment
   <br>
