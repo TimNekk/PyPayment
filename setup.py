@@ -17,7 +17,7 @@ setup(
     author_email='herew26@gmail.com',
 
     description=(
-        'Payment providers (QIWI) API wrapper'
+        'Payment providers API wrapper'
     ),
     long_description=long_description,
     long_description_content_type='text/markdown',
