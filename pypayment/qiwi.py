@@ -83,7 +83,7 @@ class QiwiPayment(Payment):
         :param expiration_duration: The time that the invoice will be available for payment.
         :param payment_type: QiwiPaymentType enum.
 
-        :raise PaymentCreationError: When authorization fails.
+        :raise AuthorizationError: When authorization fails.
         """
         QiwiPayment._secret_key = secret_key
         QiwiPayment._theme_code = theme_code

@@ -130,7 +130,7 @@ class PayOkPayment(Payment):
         :param currency: PayOkCurrency enum.
         :param success_url: User will be redirected to this url after paying.
 
-        :raise PaymentCreationError: When authorization fails.
+        :raise AuthorizationError: When authorization fails.
         """
         PayOkPayment._api_key = api_key
         PayOkPayment._api_id = api_id
