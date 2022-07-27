@@ -25,7 +25,7 @@ class LavaPayment(Payment):
                  description: str = "",
                  wallet_to: Optional[str] = None,
                  expiration_duration: Optional[timedelta] = None,
-                 charge_commission: Optional[timedelta] = None,
+                 charge_commission: Optional[ChargeCommission] = None,
                  success_url: Optional[str] = None,
                  fail_url: Optional[str] = None):
         """
@@ -62,7 +62,7 @@ class LavaPayment(Payment):
     @classmethod
     def _get_headers(cls) -> Mapping[str, str]:
         return {
-            "Authorization": cls._token,
+            "Authorization": str(cls._token),
             "Content-Type": "multipart/form-data",
             "Accept": "application/json"
         }
@@ -106,7 +106,7 @@ class LavaPayment(Payment):
         except Exception as e:
             raise AuthorizationError(e)
 
-        if response.get("status") != True:
+        if response.get("status") is not True:
             raise AuthorizationError(response.get("message"))
 
         cls.authorized = True
@@ -131,7 +131,7 @@ class LavaPayment(Payment):
         if response.status_code != 200 or response.json().get("status") != "success":
             raise PaymentCreationError(response.text)
 
-        return response.json().get("url")
+        return str(response.json().get("url"))
 
     @property
     def url(self) -> str:
@@ -159,10 +159,3 @@ class LavaPayment(Payment):
         elif status == "cancel":
             return PaymentStatus.EXPIRED
         return PaymentStatus.WAITING
-
-
-LavaPayment.authorize(token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiJkMDA5ZWJhNS1hODM0LTZiMjYtZjM1OS03Mzc0OTdiOWI1NzIiLCJ0aWQiOiJmZjRiODVhNi1iZTlmLTlhYmEtNjM4ZC0xYjhmYzJjYzA3NGIifQ.CaNbrW8PZWo8t5SMubAusuBHoOaPKBF5fuG64fpA2To",
-                      wallet_to="R10178650")
-payment: Payment = LavaPayment(amount=100, description="Test payment")
-print(payment.url)
-print(payment.status)
