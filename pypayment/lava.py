@@ -63,7 +63,6 @@ class LavaPayment(Payment):
     def _get_headers(cls) -> Mapping[str, str]:
         return {
             "Authorization": str(cls._token),
-            "Content-Type": "multipart/form-data",
             "Accept": "application/json"
         }
 
