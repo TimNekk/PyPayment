@@ -26,9 +26,10 @@
 </p>
 
 ## Providers:
-- [Qiwi P2P](https://p2p.qiwi.com/) ([Usage](#qiwi))
-- [YooMoney](https://yoomoney.ru/) ([Usage](#yoomoney))
-- [PayOk](https://payok.io/) ([Usage](#yoomoney))
+- [Qiwi P2P](https://p2p.qiwi.com/)
+- [YooMoney](https://yoomoney.ru/)
+- [PayOk](https://payok.io/)
+- [Lava](https://lava.kz/)
 
 ## Installation
 
@@ -368,6 +369,96 @@ Enum `PayOkCurrency` that represents every possible PayOk currency.
 - `USD` - United States dollar.
 - `EUR` - Euro.
 - `RUB2` - Russian ruble. _(Alternative Gateway)_
+
+</details>
+
+
+<details>
+  <summary>
+    <img src="https://lava.kz/_next/static/media/LAVA.0061213e.svg" align="left" height="40">
+    <br><br>
+    <b>Lava</b>
+  </summary>
+
+#### Authorization
+
+Before using `LavaPayment` class you must authorize with [token](https://lava.ru/dashboard/settings/api) and [wallet number](https://lava.ru/dashboard/) from Lava.
+
+```python
+from pypayment import LavaPayment
+
+LavaPayment.authorize("my_token", wallet_to="Rxxxxxxxxx")
+```
+
+You can set default parameters for every `LavaPayment` instance.
+
+- `expiration_duration` - Time that the invoice will be available for payment.
+- `charge_commission` - [Charge Commission](#charge-commission) enum.
+- `success_url` - User will be redirected to this url after paying.
+- `fail_url` - User will be redirected to this url if payment failed.
+
+
+```python
+from pypayment import LavaPayment, ChargeCommission
+from datetime import timedelta
+
+LavaPayment.authorize("my_token",
+                      wallet_to="Rxxxxxxxxx",
+                      expiration_duration=timedelta(hours=1),
+                      charge_commission=ChargeCommission.FROM_SELLER,
+                      success_url="my_success_url.com",
+                      fail_url="my_fail_url.com")
+```
+
+#### Creating invoice
+
+To created new Lava invoice, you need to instantiate `LavaPayment` with 1 required parameter.
+
+- `amount` - The amount to be invoiced. _(will be rounded to 2 decimal places)_
+
+```python
+from pypayment import Payment, LavaPayment
+
+payment: Payment = LavaPayment(amount=123.45)
+
+print(payment.url)  # https://acquiring.lava.kz/invoice/xxxxxxxxx-xxxxxxxxx-xxxxxxxxx-xxxxxxxxx
+```
+
+And 4 optional parameters that will override default ones for specific instance.
+
+- `expiration_duration` - Time that the invoice will be available for payment.
+- `charge_commission` - [Charge Commission](#charge-commission) enum.
+- `success_url` - User will be redirected to this url after paying.
+- `fail_url` - User will be redirected to this url if payment failed.
+
+```python
+from pypayment import Payment, LavaPayment, ChargeCommission
+from datetime import timedelta
+
+different_payment: Payment = LavaPayment(amount=987.65,
+                                         description="Flower pot",
+                                         expiration_duration=timedelta(hours=1),
+                                         charge_commission=ChargeCommission.FROM_SELLER,
+                                         success_url="my_success_url.com",
+                                         fail_url="my_fail_url.com")
+
+print(different_payment.url)  # https://acquiring.lava.kz/invoice/xxxxxxxxx-xxxxxxxxx-xxxxxxxxx-xxxxxxxxx
+```
+
+_Recommended to put `LavaPayment` into `Payment` variable to keep unification._
+
+#### Getting status
+
+To get payment [status](#payment-statuses), you need to use `status` property.
+
+```python
+from pypayment import Payment, LavaPayment, PaymentStatus
+
+payment: Payment = LavaPayment(100)
+
+if payment.status == PaymentStatus.PAID:
+    print("Got ur money!")  # Got ur money!
+```
 
 </details>
 
