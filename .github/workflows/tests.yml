@@ -31,6 +31,8 @@ jobs:
         echo payok_api_id=${{ secrets.PAYOK_API_ID }} >> .env
         echo payok_shop_id=${{ secrets.PAYOK_SHOP_ID }} >> .env
         echo payok_shop_secret_key=${{ secrets.PAYOK_SHOP_SECRET_KEY }} >> .env
+        echo lava_token=${{ secrets.LAVA_TOKEN }} >> .env
+        echo lava_wallet=${{ secrets.LAVA_WALLET }} >> .env
         cat .env
     - name: Test with tox
       run: tox
