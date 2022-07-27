@@ -142,7 +142,7 @@ class YooMoneyPayment(Payment):
         :param charge_commission: ChargeCommission enum.
         :param success_url: User will be redirected to this url after paying.
 
-        :raise PaymentCreationError: When authorization fails.
+        :raise AuthorizationError: When authorization fails.
         """
         YooMoneyPayment._access_token = access_token
         YooMoneyPayment._payment_type = payment_type
