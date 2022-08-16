@@ -138,7 +138,7 @@ class LavaPayment(Payment):
 
         return str(response.json().get("url"))
 
-    def _get_payment(self) -> Optional[dict[str, Any]]:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         try:
             response = requests.post(LavaPayment._INFO_URL,
                                      headers=LavaPayment._get_headers(),
@@ -151,7 +151,7 @@ class LavaPayment(Payment):
             raise PaymentCreationError(response.text)
 
         if response_json.get("invoice"):
-            payment: dict[str, Any] = response_json.get("invoice")
+            payment: Mapping[str, Any] = response_json.get("invoice")
             return payment
 
         return None

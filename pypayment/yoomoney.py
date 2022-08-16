@@ -208,7 +208,7 @@ class YooMoneyPayment(Payment):
 
         return self.amount
 
-    def _get_payment(self) -> Optional[dict[str, Any]]:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         try:
             response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
                                      headers=YooMoneyPayment._get_headers(),
@@ -222,7 +222,7 @@ class YooMoneyPayment(Payment):
         operations = response.json().get("operations")
 
         if operations:
-            payment: dict[str, Any] = operations[0]
+            payment: Mapping[str, Any] = operations[0]
             return payment
 
         return None

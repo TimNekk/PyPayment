@@ -196,7 +196,7 @@ class PayOkPayment(Payment):
 
         return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
 
-    def _get_payment(self) -> Optional[dict[str, Any]]:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         data = {
             "API_ID": PayOkPayment._api_id,
             "API_KEY": PayOkPayment._api_key,
@@ -210,7 +210,7 @@ class PayOkPayment(Payment):
             raise PaymentGettingError(e)
 
         if response.get("status") == "success":
-            payment: dict[str, Any] = response.get("1")
+            payment: Mapping[str, Any] = response.get("1")
             return payment
 
         return None

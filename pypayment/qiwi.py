@@ -137,7 +137,7 @@ class QiwiPayment(Payment):
 
         return str(response.json().get("payUrl"))
 
-    def _get_payment(self) -> Optional[dict[str, Any]]:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         try:
             response = requests.get(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers())
         except Exception as e:
@@ -147,7 +147,7 @@ class QiwiPayment(Payment):
             raise PaymentGettingError(response.text)
 
         if response:
-            payment: dict[str, Any] = response.json()
+            payment: Mapping[str, Any] = response.json()
             return payment
         return None
 
