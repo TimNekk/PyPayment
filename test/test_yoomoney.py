@@ -24,19 +24,19 @@ def test_payment_creation():
     assert payment is not None
 
 
-def test_payment_creation_with_float():
-    payment: Payment = YooMoneyPayment(1.23)
-    assert payment is not None
-
-
 def test_url_getting():
     payment: Payment = YooMoneyPayment(1)
     assert "https://yoomoney.ru/transfer/quickpay?requestId=" in payment.url
 
 
 def test_status_getting():
-    payment: Payment = YooMoneyPayment(1.23)
+    payment: Payment = YooMoneyPayment(1)
     assert payment.status == PaymentStatus.WAITING
+
+
+def test_income_getting():
+    payment: Payment = YooMoneyPayment(1)
+    assert payment.income is None
 
 
 def test_get_wrong_access_token(monkeypatch):
