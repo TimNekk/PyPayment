@@ -36,4 +36,4 @@ def test_status_getting():
 
 def test_income_getting():
     payment: Payment = QiwiPayment(1)
-    assert payment.income is None
+    assert payment.income == 1
