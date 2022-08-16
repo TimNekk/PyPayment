@@ -1,7 +1,7 @@
 import hashlib
 import urllib.parse
 from enum import Enum
-from typing import Optional, Any
+from typing import Optional, Any, Mapping
 
 import requests
 
