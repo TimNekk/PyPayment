@@ -52,4 +52,3 @@ def test_status_getting():
 def test_income_getting():
     payment: Payment = PayOkPayment(1)
     assert payment.income is None
-
