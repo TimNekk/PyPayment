@@ -24,16 +24,16 @@ def test_payment_creation():
     assert payment is not None
 
 
-def test_payment_creation_with_float():
-    payment: Payment = QiwiPayment(1.23)
-    assert payment is not None
-
-
 def test_url_getting():
     payment: Payment = QiwiPayment(1)
     assert "https://oplata.qiwi.com/form/?invoice_uid=" in payment.url
 
 
 def test_status_getting():
-    payment: Payment = QiwiPayment(1.23)
+    payment: Payment = QiwiPayment(1)
     assert payment.status == PaymentStatus.WAITING
+
+
+def test_income_getting():
+    payment: Payment = QiwiPayment(1)
+    assert payment.income is None
