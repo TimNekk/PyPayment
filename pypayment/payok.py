@@ -1,7 +1,7 @@
 import hashlib
 import urllib.parse
 from enum import Enum
-from typing import Optional
+from typing import Optional, Any
 
 import requests
 
@@ -71,6 +71,10 @@ class PayOkPayment(Payment):
     _PAY_URL = _BASE_URL + "/pay"
     _API_URL = _BASE_URL + "/api"
     _TRANSACTION_URL = _API_URL + "/transaction"
+    _STATUS_MAP = {
+        "0": PaymentStatus.WAITING,
+        "1": PaymentStatus.PAID
+    }
 
     def __init__(self,
                  amount: float,
@@ -192,12 +196,7 @@ class PayOkPayment(Payment):
 
         return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
 
-    @property
-    def url(self) -> str:
-        return self._url
-
-    @property
-    def status(self) -> PaymentStatus:
+    def _get_payment(self) -> Optional[dict[str, Any]]:
         data = {
             "API_ID": PayOkPayment._api_id,
             "API_KEY": PayOkPayment._api_key,
@@ -206,16 +205,37 @@ class PayOkPayment(Payment):
         }
         try:
             response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
+            print(response)
         except Exception as e:
             raise PaymentGettingError(e)
 
-        if response.get("status") == "error" and response.get("error_code") == "10":
-            return PaymentStatus.WAITING
-
         if response.get("status") == "success":
-            if response.get("1").get("transaction_status") == "1":
-                return PaymentStatus.PAID
-            else:
-                return PaymentStatus.WAITING
+            payment: dict[str, Any] = response.get("1")
+            return payment
 
-        raise PaymentGettingError(response)
+        return None
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    @property
+    def status(self) -> PaymentStatus:
+        payment = self._get_payment()
+        status: Optional[PaymentStatus] = None
+
+        if payment:
+            transaction_status = payment.get("transaction_status")
+            if transaction_status:
+                status = PayOkPayment._STATUS_MAP.get(transaction_status)
+
+        return status if status else PaymentStatus.WAITING
+
+    @property
+    def income(self) -> Optional[float]:
+        payment = self._get_payment()
+
+        if payment:
+            return float(str(payment.get("amount_profit")))
+
+        return None
