@@ -26,7 +26,8 @@ def test_payment_creation():
 
 def test_url_getting():
     payment: Payment = LavaPayment(1)
-    assert "https://acquiring.lava.kz/invoice/" in payment.url
+    assert "https://acquiring.lava.kz/invoice/" in payment.url or \
+           "https://acquiring.lava.ru/invoice/" in payment.url
 
 
 def test_status_getting():
@@ -36,4 +37,4 @@ def test_status_getting():
 
 def test_income_getting():
     payment: Payment = LavaPayment(1)
-    assert payment.income is None
+    assert payment.income == 1
