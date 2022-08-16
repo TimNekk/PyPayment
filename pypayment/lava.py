@@ -1,9 +1,10 @@
 from datetime import timedelta
-from typing import Optional, Mapping
+from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission
+from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
+    AuthorizationError, ChargeCommission
 
 
 class LavaPayment(Payment):
@@ -19,6 +20,11 @@ class LavaPayment(Payment):
     _INVOICE_URL = _BASE_URL + "/invoice"
     _CREATE_URL = _INVOICE_URL + "/create"
     _INFO_URL = _INVOICE_URL + "/info"
+    _STATUS_MAP = {
+        "success": PaymentStatus.PAID,
+        "pending": PaymentStatus.WAITING,
+        "cancel": PaymentStatus.REJECTED
+    }
 
     def __init__(self,
                  amount: float,
@@ -132,29 +138,45 @@ class LavaPayment(Payment):
 
         return str(response.json().get("url"))
 
+    def _get_payment(self) -> Optional[dict[str, Any]]:
+        try:
+            response = requests.post(LavaPayment._INFO_URL,
+                                     headers=LavaPayment._get_headers(),
+                                     data={"order_id": self.id})
+        except Exception as e:
+            raise PaymentGettingError(e)
+
+        response_json = response.json()
+        if response.status_code != 200 or response_json.get("status") != "success":
+            raise PaymentCreationError(response.text)
+
+        if response_json.get("invoice"):
+            payment: dict[str, Any] = response_json.get("invoice")
+            return payment
+
+        return None
+
     @property
     def url(self) -> str:
         return self._url
 
     @property
     def status(self) -> PaymentStatus:
-        data = {
-            "order_id": self.id
-        }
+        payment = self._get_payment()
+        status: Optional[PaymentStatus] = None
 
-        try:
-            response = requests.post(LavaPayment._INFO_URL, headers=LavaPayment._get_headers(), data=data)
-        except Exception as e:
-            raise PaymentGettingError(e)
+        if payment:
+            status_literal = payment.get("status")
+            if status_literal:
+                status = LavaPayment._STATUS_MAP.get(str(status_literal))
 
-        if response.status_code != 200 or response.json().get("status") != "success":
-            raise PaymentCreationError(response.text)
+        return status if status else PaymentStatus.WAITING
 
-        status = response.json().get("invoice").get("status")
-        if status == "success":
-            return PaymentStatus.PAID
-        elif status == "error":
-            return PaymentStatus.REJECTED
-        elif status == "cancel":
-            return PaymentStatus.EXPIRED
-        return PaymentStatus.WAITING
+    @property
+    def income(self) -> Optional[float]:
+        payment = self._get_payment()
+
+        if payment:
+            return float(str(payment.get("sum")))
+
+        return None
