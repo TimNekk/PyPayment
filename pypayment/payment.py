@@ -6,7 +6,9 @@ from pypayment import PaymentStatus
 
 
 class Payment(ABC):
-    """Payment interface than allows to create and check invoices."""
+    """
+    Payment interface than allows to create and check invoices.
+    """
     def __init__(self, amount: float, description: str = ""):
         self.amount = amount
         """The amount to be invoiced."""
