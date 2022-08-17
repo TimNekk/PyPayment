@@ -39,16 +39,16 @@ def test_payment_creation():
     assert payment is not None
 
 
-def test_payment_creation_with_float():
-    payment: Payment = PayOkPayment(1.23)
-    assert payment is not None
-
-
 def test_url_getting():
     payment: Payment = PayOkPayment(1)
     assert "https://payok.io/pay?" in payment.url
 
 
 def test_status_getting():
-    payment: Payment = PayOkPayment(1.23)
+    payment: Payment = PayOkPayment(1)
     assert payment.status == PaymentStatus.WAITING
+
+
+def test_income_getting():
+    payment: Payment = PayOkPayment(1)
+    assert payment.income is None

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 from uuid import uuid4
 
 from pypayment import PaymentStatus
@@ -26,8 +27,18 @@ class Payment(ABC):
     @abstractmethod
     def status(self) -> PaymentStatus:
         """
-        Requests the payment status from the payment provider
+        Requests the payment status from the payment provider.
 
-        :return: Payment status
+        :return: Payment status.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def income(self) -> Optional[float]:
+        """
+        Requests the payment income (profit) from the payment provider.
+
+        :return: Income from the payment.
         """
         pass

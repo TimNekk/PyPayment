@@ -1,9 +1,10 @@
 from enum import Enum
-from typing import Optional, Mapping
+from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission
+from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
+    AuthorizationError, ChargeCommission
 
 
 class YooMoneyPaymentType(Enum):
@@ -30,6 +31,11 @@ class YooMoneyPayment(Payment):
     _TOKEN_URL = _OAUTH_URL + "/token"
     _ACCOUNT_INFO_URL = _API_URL + "/account-info"
     _OPERATION_HISTORY_URL = _API_URL + "/operation-history"
+    _STATUS_MAP = {
+        "success": PaymentStatus.PAID,
+        "refused": PaymentStatus.REJECTED,
+        "in_progress": PaymentStatus.WAITING
+    }
 
     def __init__(self,
                  amount: float,
@@ -202,14 +208,11 @@ class YooMoneyPayment(Payment):
 
         return self.amount
 
-    @property
-    def url(self) -> str:
-        return self._url
-
-    @property
-    def status(self) -> PaymentStatus:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         try:
-            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL, headers=YooMoneyPayment._get_headers(), data={"label": self.id})
+            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
+                                     headers=YooMoneyPayment._get_headers(),
+                                     data={"label": self.id})
         except Exception as e:
             raise PaymentGettingError(e)
 
@@ -219,12 +222,30 @@ class YooMoneyPayment(Payment):
         operations = response.json().get("operations")
 
         if operations:
-            status = operations[0].get("status")
-            if status == "success":
-                return PaymentStatus.PAID
-            if status == "refused":
-                return PaymentStatus.REJECTED
-            if status == "in_progress":
-                return PaymentStatus.WAITING
+            payment: Mapping[str, Any] = operations[0]
+            return payment
 
-        return PaymentStatus.WAITING
+        return None
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    @property
+    def status(self) -> PaymentStatus:
+        payment = self._get_payment()
+        status: Optional[PaymentStatus] = None
+
+        if payment:
+            status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
+
+        return status if status else PaymentStatus.WAITING
+
+    @property
+    def income(self) -> Optional[float]:
+        payment = self._get_payment()
+
+        if payment:
+            return payment.get("amount")
+
+        return None

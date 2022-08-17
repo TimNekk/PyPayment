@@ -1,11 +1,12 @@
 import json
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Mapping
+from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError
+from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
+    AuthorizationError
 
 
 class QiwiPaymentType(Enum):
@@ -24,6 +25,12 @@ class QiwiPayment(Payment):
     _expiration_duration: timedelta
     _payment_type: QiwiPaymentType
     _API_URL = "https://api.qiwi.com/partner/bill/v1/bills/"
+    _STATUS_MAP = {
+        "WAITING": PaymentStatus.WAITING,
+        "PAID": PaymentStatus.PAID,
+        "REJECTED": PaymentStatus.REJECTED,
+        "EXPIRED": PaymentStatus.EXPIRED
+    }
 
     def __init__(self,
                  amount: float,
@@ -111,7 +118,8 @@ class QiwiPayment(Payment):
                 "value": round(self.amount, 2)
             },
             "comment": self.description,
-            "expirationDateTime": (datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat(),
+            "expirationDateTime": (
+                        datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat(),
             "customFields": {
                 "themeCode": self._theme_code,
                 "paySourcesFilter": self._payment_type.value
@@ -119,7 +127,8 @@ class QiwiPayment(Payment):
         }
 
         try:
-            response = requests.put(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers(), data=json.dumps(data))
+            response = requests.put(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers(),
+                                    data=json.dumps(data))
         except Exception as e:
             raise PaymentCreationError(e)
 
@@ -128,12 +137,7 @@ class QiwiPayment(Payment):
 
         return str(response.json().get("payUrl"))
 
-    @property
-    def url(self) -> str:
-        return self._url
-
-    @property
-    def status(self) -> PaymentStatus:
+    def _get_payment(self) -> Optional[Mapping[str, Any]]:
         try:
             response = requests.get(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers())
         except Exception as e:
@@ -142,4 +146,34 @@ class QiwiPayment(Payment):
         if response.status_code != 200:
             raise PaymentGettingError(response.text)
 
-        return PaymentStatus[response.json().get("status").get("value")]
+        if response:
+            payment: Mapping[str, Any] = response.json()
+            return payment
+        return None
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    @property
+    def status(self) -> PaymentStatus:
+        payment = self._get_payment()
+        status: Optional[PaymentStatus] = None
+
+        if payment:
+            status_literal = payment.get("status")
+            if status_literal:
+                status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
+
+        return status if status else PaymentStatus.WAITING
+
+    @property
+    def income(self) -> Optional[float]:
+        payment = self._get_payment()
+
+        if payment:
+            amount = payment.get("amount")
+            if amount:
+                return float(amount.get("value"))
+
+        return None

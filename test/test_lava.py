@@ -24,16 +24,17 @@ def test_payment_creation():
     assert payment is not None
 
 
-def test_payment_creation_with_float():
-    payment: Payment = LavaPayment(1.23)
-    assert payment is not None
-
-
 def test_url_getting():
     payment: Payment = LavaPayment(1)
-    assert "https://acquiring.lava.kz/invoice/" in payment.url
+    assert "https://acquiring.lava.kz/invoice/" in payment.url or \
+           "https://acquiring.lava.ru/invoice/" in payment.url
 
 
 def test_status_getting():
-    payment: Payment = LavaPayment(1.23)
+    payment: Payment = LavaPayment(1)
     assert payment.status == PaymentStatus.WAITING
+
+
+def test_income_getting():
+    payment: Payment = LavaPayment(1)
+    assert payment.income == 1

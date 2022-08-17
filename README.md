@@ -43,10 +43,11 @@ pip install -U pypayment
 
 The module provides an interface `Payment` for the unification of each payment provider.
 
-It has 2 properties:
+It has 3 properties:
 
 - `url` - Link to the created payment form.
 - `status` - Current payment status.
+- `income` - Income (profit) from the payment.
 
 ```python
 from pypayment import Payment
@@ -133,6 +134,20 @@ payment: Payment = QiwiPayment(100)
 
 if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
+```
+
+#### Getting income
+
+To get payment income (profit), you need to use `income` property.
+
+```python
+from pypayment import Payment, QiwiPayment
+
+payment: Payment = QiwiPayment(100)  # E.x. commission is 10%
+
+income = payment.income
+if income:
+    print(income)  # 90.0
 ```
 
 #### Qiwi Payment Types
@@ -242,6 +257,20 @@ if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
 ```
 
+#### Getting income
+
+To get payment income (profit), you need to use `income` property.
+
+```python
+from pypayment import Payment, YooMoneyPayment
+
+payment: Payment = YooMoneyPayment(100)  # E.x. commission is 10%
+
+income = payment.income
+if income:
+    print(income)  # 90.0
+```
+
 #### YooMoney Payment Types
 
 Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
@@ -336,6 +365,20 @@ payment: Payment = PayOkPayment(100)
 
 if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
+```
+
+#### Getting income
+
+To get payment income (profit), you need to use `income` property.
+
+```python
+from pypayment import Payment, PayOkPayment
+
+payment: Payment = PayOkPayment(100)  # E.x. commission is 10%
+
+income = payment.income
+if income:
+    print(income)  # 90.0
 ```
 
 #### PayOk Payment Types
@@ -458,6 +501,20 @@ payment: Payment = LavaPayment(100)
 
 if payment.status == PaymentStatus.PAID:
     print("Got ur money!")  # Got ur money!
+```
+
+#### Getting income
+
+To get payment income (profit), you need to use `income` property.
+
+```python
+from pypayment import Payment, LavaPayment
+
+payment: Payment = LavaPayment(100)  # E.x. commission is 10%
+
+income = payment.income
+if income:
+    print(income)  # 90.0
 ```
 
 </details>
