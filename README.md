@@ -8,11 +8,11 @@
 
 <h4 align="center">Payment providers API wrapper.</h4>
 
-<p align="center">
+<p class="badges" align="center">
     <img src="https://img.shields.io/pypi/v/pypayment?color=orange" alt="PyPI">
     <img src="https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet" alt="Python 3">
     <img src="https://github.com/TimNekk/pypayment/actions/workflows/tests.yml/badge.svg" alt="Tests">
-
+    <a href="https://deepsource.io/gh/TimNekk/pypayment/?ref=repository-badge}" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/TimNekk/pypayment.svg/?label=active+issues&show_trend=true&token=YlQEv_BbbqmICG5Xy3skch_c"/></a>
 </p>
 
 <p align="center">
