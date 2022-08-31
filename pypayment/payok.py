@@ -9,9 +9,7 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentGettingError
 
 
 class PayOkPaymentType(Enum):
-    """
-    PayOk payment type enum.
-    """
+    """PayOk payment type enum."""
     CARD = "cd"
     """Payment with bank card."""
     QIWI = "qw"
@@ -49,9 +47,7 @@ class PayOkPaymentType(Enum):
 
 
 class PayOkCurrency(Enum):
-    """
-    PayOk payment currency enum.
-    """
+    """PayOk payment currency enum."""
     RUB = "RUB"
     """Russian ruble."""
     UAH = "UAH"
@@ -65,9 +61,7 @@ class PayOkCurrency(Enum):
 
 
 class PayOkPayment(Payment):
-    """
-    PayOk payment class.
-    """
+    """PayOk payment class."""
     authorized = False
     _api_key: str
     _api_id: int

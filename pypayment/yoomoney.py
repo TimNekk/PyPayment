@@ -8,9 +8,7 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationErro
 
 
 class YooMoneyPaymentType(Enum):
-    """
-    YooMoney payment type enum.
-    """
+    """YooMoney payment type enum."""
     WALLET = "PC"
     """Payment with YooMoney wallet."""
     CARD = "AC"
@@ -20,9 +18,7 @@ class YooMoneyPaymentType(Enum):
 
 
 class YooMoneyPayment(Payment):
-    """
-    YooMoney payment class.
-    """
+    """YooMoney payment class."""
     authorized = False
     _access_token: str
     _account_id: Optional[str] = None

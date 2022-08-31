@@ -2,9 +2,7 @@ from enum import Enum
 
 
 class PaymentStatus(Enum):
-    """
-    Payment status enum.
-    """
+    """Payment status enum."""
     WAITING = 0
     """Payment has been created, but has not yet been paid."""
     PAID = 1
