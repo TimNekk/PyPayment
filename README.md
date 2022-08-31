@@ -418,7 +418,7 @@ Enum `PayOkCurrency` that represents every possible PayOk currency.
 
 <details>
   <summary>
-    <img src="https://lava.kz/_next/static/media/LAVA.0061213e.svg" align="left" height="40">
+    <img src="https://lava.kz/_next/static/media/LAVA.7e12ca82.svg" align="left" height="40">
     <br><br>
     <b>Lava</b>
   </summary>
