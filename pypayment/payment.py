@@ -20,7 +20,6 @@ class Payment(ABC):
     @abstractmethod
     def url(self) -> str:
         """:return: Link to the created payment form."""
-        pass
 
     @property
     @abstractmethod
@@ -30,7 +29,6 @@ class Payment(ABC):
 
         :return: Payment status.
         """
-        pass
 
     @property
     @abstractmethod
@@ -40,4 +38,3 @@ class Payment(ABC):
 
         :return: Income from the payment.
         """
-        pass
