@@ -205,7 +205,7 @@ class YooMoneyPayment(Payment):
                 commission_multiplier = 0.005
                 return self.amount * (1 + commission_multiplier)
 
-            elif self._payment_type == YooMoneyPaymentType.CARD:
+            if self._payment_type == YooMoneyPaymentType.CARD:
                 # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=Bank%20card%0AAC,get%20980%C2%A0rubles.
                 commission_multiplier = 0.02
                 return self.amount / (1 - commission_multiplier)
