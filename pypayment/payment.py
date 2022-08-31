@@ -6,9 +6,8 @@ from pypayment import PaymentStatus
 
 
 class Payment(ABC):
-    """
-    Payment interface than allows to create and check invoices.
-    """
+    """Payment interface than allows to create and check invoices."""
+
     def __init__(self, amount: float, description: str = ""):
         self.amount = amount
         """The amount to be invoiced."""
@@ -20,10 +19,7 @@ class Payment(ABC):
     @property
     @abstractmethod
     def url(self) -> str:
-        """
-        :return: Link to the created payment form.
-        """
-        pass
+        """:return: Link to the created payment form."""
 
     @property
     @abstractmethod
@@ -33,7 +29,6 @@ class Payment(ABC):
 
         :return: Payment status.
         """
-        pass
 
     @property
     @abstractmethod
@@ -43,4 +38,3 @@ class Payment(ABC):
 
         :return: Income from the payment.
         """
-        pass
