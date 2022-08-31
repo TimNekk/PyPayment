@@ -11,6 +11,7 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationErro
 
 class QiwiPaymentType(Enum):
     """Qiwi payment type enum."""
+
     WALLET = "qw"
     """Payment with Qiwi wallet."""
     CARD = "card"
@@ -21,6 +22,7 @@ class QiwiPaymentType(Enum):
 
 class QiwiPayment(Payment):
     """Qiwi payment class."""
+
     authorized = False
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
