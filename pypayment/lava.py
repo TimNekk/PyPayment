@@ -8,6 +8,9 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationErro
 
 
 class LavaPayment(Payment):
+    """
+    Lava payment class.
+    """
     authorized = False
     _token: Optional[str] = None
     _wallet_to: Optional[str] = None
