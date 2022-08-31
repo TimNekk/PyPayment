@@ -8,6 +8,8 @@ from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationErro
 
 
 class YooMoneyPaymentType(Enum):
+    """YooMoney payment type enum."""
+
     WALLET = "PC"
     """Payment with YooMoney wallet."""
     CARD = "AC"
@@ -17,6 +19,8 @@ class YooMoneyPaymentType(Enum):
 
 
 class YooMoneyPayment(Payment):
+    """YooMoney payment class."""
+
     authorized = False
     _access_token: str
     _account_id: Optional[str] = None
@@ -201,7 +205,7 @@ class YooMoneyPayment(Payment):
                 commission_multiplier = 0.005
                 return self.amount * (1 + commission_multiplier)
 
-            elif self._payment_type == YooMoneyPaymentType.CARD:
+            if self._payment_type == YooMoneyPaymentType.CARD:
                 # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=Bank%20card%0AAC,get%20980%C2%A0rubles.
                 commission_multiplier = 0.02
                 return self.amount / (1 - commission_multiplier)
