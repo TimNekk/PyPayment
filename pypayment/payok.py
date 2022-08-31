@@ -175,7 +175,7 @@ class PayOkPayment(Payment):
             "currency": "RUB",
         }
         sign_str = "|".join(map(str, (data["amount"], data["payment"], data["shop"], data["currency"], data["desc"], PayOkPayment._shop_secret_key)))
-        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324
+        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
         try:
             response = requests.post(PayOkPayment._PAY_URL, data=data)
         except Exception as e:
@@ -198,7 +198,7 @@ class PayOkPayment(Payment):
         }
 
         sign_str = "|".join(map(str, (data["amount"], data["payment"], data["shop"], data["currency"], data["desc"], PayOkPayment._shop_secret_key)))
-        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324
+        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
 
         return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
 
