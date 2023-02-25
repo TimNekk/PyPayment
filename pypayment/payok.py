@@ -211,7 +211,6 @@ class PayOkPayment(Payment):
         }
         try:
             response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
-            print(response)
         except Exception as e:
             raise PaymentGettingError(e)
 
