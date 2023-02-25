@@ -199,15 +199,16 @@ class YooMoneyPayment(Payment):
 
     @property
     def sum_with_commission(self) -> float:
+        """
+        https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions
+        """
         if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
             if self._payment_type == YooMoneyPaymentType.WALLET:
-                # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=YooMoney%20wallet%0APC,and%202%C2%A0kopecks.
-                commission_multiplier = 0.005
+                commission_multiplier = 0.01
                 return self.amount * (1 + commission_multiplier)
 
             if self._payment_type == YooMoneyPaymentType.CARD:
-                # https://yoomoney.ru/docs/payment-buttons/using-api/forms?lang=en#:~:text=Bank%20card%0AAC,get%20980%C2%A0rubles.
-                commission_multiplier = 0.02
+                commission_multiplier = 0.03
                 return self.amount / (1 - commission_multiplier)
 
         return self.amount
