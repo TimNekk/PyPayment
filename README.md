@@ -524,7 +524,7 @@ if income:
 
 #### Charge Commission
 
-Enum `ChargeCommission` that represents who will be charged the commission ([YooMoney commission](https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions)).
+Enum `ChargeCommission` that represents who will be charged the commission.
 
 - `FROM_CUSTOMER` - Charge commission from customer.
 - `FROM_SELLER` - Charge commission from seller.
