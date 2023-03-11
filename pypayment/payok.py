@@ -77,6 +77,7 @@ class PayOkPayment(Payment):
     _PAY_URL = _BASE_URL + "/pay"
     _API_URL = _BASE_URL + "/api"
     _TRANSACTION_URL = _API_URL + "/transaction"
+    _BALANCE_URL = _API_URL + "/balance"
     _STATUS_MAP = {
         "0": PaymentStatus.WAITING,
         "1": PaymentStatus.PAID
@@ -132,7 +133,7 @@ class PayOkPayment(Payment):
         Tries to authorize to PayOk API.
         Saves passed parameters as default.
 
-        :param api_key: API key from https://payok.io/cabinet/api.php
+        :param api_key: API key from https://payok.io/cabinet/api.php (`Balance` and `Transactions` permissions are required)
         :param api_id: ID of API key from https://payok.io/cabinet/api.php
         :param shop_id: ID of shop from https://payok.io/cabinet/main.php
         :param shop_secret_key: Secret key of shop from https://payok.io/cabinet/main.php
@@ -157,14 +158,15 @@ class PayOkPayment(Payment):
         data = {
             "API_ID": cls._api_id,
             "API_KEY": cls._api_key,
-            "shop": cls._shop_id,
         }
         try:
-            response = requests.post(cls._TRANSACTION_URL, data=data)
+            response = requests.post(cls._BALANCE_URL, data=data)
         except Exception as e:
             raise AuthorizationError(e)
 
-        if response.json().get("status") == "error":
+        if response.status_code != 200:
+            raise AuthorizationError(response.text)
+        elif response.json().get("status") == "error":
             raise AuthorizationError(response.json())
 
         data = {
@@ -181,7 +183,11 @@ class PayOkPayment(Payment):
         except Exception as e:
             raise AuthorizationError(e)
 
-        if "Неверная подпись." in response.text:
+        if response.status_code != 200:
+            raise AuthorizationError(response.text)
+        elif "Такой магазин не зарегистрирован." in response.text:
+            raise AuthorizationError("Invalid shop ID")
+        elif "Неверная подпись." in response.text:
             raise AuthorizationError("Invalid shop secret key")
 
         cls.authorized = True
