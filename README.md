@@ -293,7 +293,7 @@ Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
 
 Before using `PayOkPayment` class you must authorize with:
 
-- [API Key](https://payok.io/cabinet/api.php)
+- [API Key](https://payok.io/cabinet/api.php) (`Balance` and `Transactions` permissions are required)
 - [API ID](https://payok.io/cabinet/api.php)
 - [Shop ID](https://payok.io/cabinet/main.php)
 - [Shop secret key](https://payok.io/cabinet/main.php)
