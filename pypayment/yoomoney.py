@@ -44,6 +44,7 @@ class YooMoneyPayment(Payment):
     def __init__(self,
                  amount: float,
                  description: str = "",
+                 id: Optional[str] = None,
                  payment_type: Optional[YooMoneyPaymentType] = None,
                  charge_commission: Optional[ChargeCommission] = None,
                  success_url: Optional[str] = None):
@@ -55,6 +56,8 @@ class YooMoneyPayment(Payment):
         Passed parameters will be applied to instance, but won't override default ones.
 
         :param amount: The amount to be invoiced.
+        :param description: Payment comment.
+        :param id: Unique Payment ID (default: generated with uuid4).
         :param payment_type: YooMoneyPaymentType enum.
         :param success_url: User will be redirected to this url after paying.
 
@@ -68,7 +71,7 @@ class YooMoneyPayment(Payment):
         self._charge_commission = YooMoneyPayment._charge_commission if charge_commission is None else charge_commission
         self._success_url = YooMoneyPayment._success_url if success_url is None else success_url
 
-        super().__init__(amount, description)
+        super().__init__(amount, description, id)
 
         self._url = self._create()
 
