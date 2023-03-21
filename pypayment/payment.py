@@ -8,13 +8,13 @@ from pypayment import PaymentStatus
 class Payment(ABC):
     """Payment interface than allows to create and check invoices."""
 
-    def __init__(self, amount: float, description: str = ""):
+    def __init__(self, amount: float, description: str = "", id: Optional[str] = None):
         self.amount = amount
         """The amount to be invoiced."""
         self.description = description
         """Payment comment."""
-        self.id = str(uuid4())
-        """Unique Payment ID (generated with uuid4)."""
+        self.id = id if id is not None else str(uuid4())
+        """Unique Payment ID (default: generated with uuid4)."""
 
     @property
     @abstractmethod
