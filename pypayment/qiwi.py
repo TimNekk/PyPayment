@@ -39,6 +39,7 @@ class QiwiPayment(Payment):
     def __init__(self,
                  amount: float,
                  description: str = "",
+                 id: Optional[str] = None,
                  theme_code: Optional[str] = None,
                  expiration_duration: Optional[timedelta] = None,
                  payment_type: Optional[QiwiPaymentType] = None):
@@ -51,6 +52,7 @@ class QiwiPayment(Payment):
 
         :param amount: The amount to be invoiced.
         :param description: Payment comment.
+        :param id: Unique Payment ID (default: generated with uuid4).
         :param theme_code: Theme code from https://qiwi.com/p2p-admin/transfers/link
         :param expiration_duration: Time that the invoice will be available for payment.
         :param payment_type: QiwiPaymentType enum.
@@ -65,7 +67,7 @@ class QiwiPayment(Payment):
         self._expiration_duration = QiwiPayment._expiration_duration if expiration_duration is None else expiration_duration
         self._payment_type = QiwiPayment._payment_type if payment_type is None else payment_type
 
-        super().__init__(amount, description)
+        super().__init__(amount, description, id)
 
         self._url = self._create()
 
