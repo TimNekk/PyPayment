@@ -86,6 +86,7 @@ class PayOkPayment(Payment):
     def __init__(self,
                  amount: float,
                  description: str = "",
+                 id: Optional[str] = None,
                  payment_type: Optional[PayOkPaymentType] = None,
                  currency: Optional[PayOkCurrency] = None,
                  success_url: Optional[str] = None):
@@ -97,6 +98,8 @@ class PayOkPayment(Payment):
         Passed parameters will be applied to instance, but won't override default ones.
 
         :param amount: The amount to be invoiced.
+        :param description: Payment comment.
+        :param id: Unique Payment ID (default: generated with uuid4).
         :param payment_type: PayOkPaymentType enum.
         :param currency: PayOkCurrency enum.
         :param success_url: User will be redirected to this url after paying.
@@ -111,7 +114,7 @@ class PayOkPayment(Payment):
         self._currency = PayOkPayment._currency if currency is None else currency
         self._success_url = PayOkPayment._success_url if success_url is None else success_url
 
-        super().__init__(amount, description)
+        super().__init__(amount, description, id)
         self.id: str = str(self.id[:16])
         if not description:
             self.description = self.id
