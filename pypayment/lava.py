@@ -31,6 +31,7 @@ class LavaPayment(Payment):
     def __init__(self,
                  amount: float,
                  description: str = "",
+                 id: Optional[str] = None,
                  wallet_to: Optional[str] = None,
                  expiration_duration: Optional[timedelta] = None,
                  charge_commission: Optional[ChargeCommission] = None,
@@ -45,6 +46,7 @@ class LavaPayment(Payment):
 
         :param amount: The amount to be invoiced.
         :param description: Payment comment.
+        :param id: Unique Payment ID (default: generated with uuid4).
         :param wallet_to: Account number to which the funds will be credited. (e.x. R40510054)
         :param expiration_duration: The time that the invoice will be available for payment.
         :param charge_commission: ChargeCommission enum.
@@ -63,7 +65,7 @@ class LavaPayment(Payment):
         self._success_url = LavaPayment._success_url if success_url is None else success_url
         self._fail_url = LavaPayment._fail_url if fail_url is None else fail_url
 
-        super().__init__(amount, description)
+        super().__init__(amount, description, id)
 
         self._url = self._create()
 
