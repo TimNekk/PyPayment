@@ -100,10 +100,10 @@ class QiwiPayment(Payment):
             },
             "comment": self.description,
             "expirationDateTime": (
-                        datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat(),
+                        datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat() if self._expiration_duration else None,
             "customFields": {
                 "themeCode": self._theme_code,
-                "paySourcesFilter": self._payment_type.value
+                "paySourcesFilter": self._payment_type.value if self._payment_type else None
             }
         }
 

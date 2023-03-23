@@ -154,9 +154,9 @@ class PayOkPayment(Payment):
             "payment": self.id,
             "shop": PayOkPayment._shop_id,
             "desc": self.description,
-            "currency": self._currency.value,
+            "currency": self._currency.value if self._currency else None,
             "success_url": self._success_url,
-            "method": self._payment_type.value
+            "method": self._payment_type.value if self._payment_type else None
         }
 
         sign_str = "|".join(map(str, (

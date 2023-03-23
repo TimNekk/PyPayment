@@ -125,7 +125,7 @@ class YooMoneyPayment(Payment):
             "receiver": YooMoneyPayment._account_id,
             "quickpay-form": "shop",
             "targets": self.id,
-            "paymentType": self._payment_type.value,
+            "paymentType": self._payment_type.value if self._payment_type else None,
             "sum": self._sum_with_commission,
             "formcomment": self.description,
             "short-dest": self.description,

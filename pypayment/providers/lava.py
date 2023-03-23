@@ -103,7 +103,7 @@ class LavaPayment(Payment):
             "order_id": self.id,
             "success_url": self._success_url,
             "fail_url": self._fail_url,
-            "expire": int(self._expiration_duration.seconds / 60),
+            "expire": int(self._expiration_duration.seconds / 60) if self._expiration_duration else 0,
             "subtract": 1 if self._charge_commission == ChargeCommission.FROM_CUSTOMER else 0,
             "comment": self.description
         }
