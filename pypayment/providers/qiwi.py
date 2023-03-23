@@ -26,8 +26,8 @@ class QiwiPayment(Payment):
 
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
-    _expiration_duration: timedelta
-    _payment_type: QiwiPaymentType
+    _expiration_duration: Optional[timedelta] = None
+    _payment_type: Optional[QiwiPaymentType] = None
     _API_URL = "https://api.qiwi.com/partner/bill/v1/bills/"
     _STATUS_MAP = {
         "WAITING": PaymentStatus.WAITING,

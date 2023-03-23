@@ -24,8 +24,8 @@ class YooMoneyPayment(Payment):
 
     _access_token: str
     _account_id: Optional[str] = None
-    _payment_type: YooMoneyPaymentType
-    _charge_commission: ChargeCommission
+    _payment_type: Optional[YooMoneyPaymentType] = None
+    _charge_commission: Optional[ChargeCommission] = None
     _success_url: Optional[str] = None
     _BASE_URL = "https://yoomoney.ru"
     _OAUTH_URL = _BASE_URL + "/oauth"

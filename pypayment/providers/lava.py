@@ -13,8 +13,8 @@ class LavaPayment(Payment):
 
     _token: Optional[str] = None
     _wallet_to: Optional[str] = None
-    _expiration_duration: timedelta
-    _charge_commission: ChargeCommission
+    _expiration_duration: Optional[timedelta] = None
+    _charge_commission: Optional[ChargeCommission] = None
     _success_url: Optional[str] = None
     _fail_url: Optional[str] = None
     _BASE_URL = "https://api.lava.ru"

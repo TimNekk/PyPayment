@@ -70,8 +70,8 @@ class PayOkPayment(Payment):
     _api_id: int
     _shop_id: int
     _shop_secret_key: str
-    _payment_type: PayOkPaymentType
-    _currency: PayOkCurrency
+    _payment_type: Optional[PayOkPaymentType] = None
+    _currency: Optional[PayOkCurrency] = None
     _success_url: Optional[str] = None
     _BASE_URL = "https://payok.io"
     _PAY_URL = _BASE_URL + "/pay"
