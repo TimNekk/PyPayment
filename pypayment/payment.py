@@ -36,12 +36,10 @@ class Payment(ABC):
     @abstractmethod
     def _create_url(self) -> str:
         """Creates payment URL."""
-        pass
 
     @abstractmethod
     def update(self) -> None:
         """Updates payment status and income."""
-        pass
 
     def _check_authorization(self) -> None:
         """Raises NotAuthorized if class was not authorized."""

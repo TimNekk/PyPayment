@@ -97,8 +97,6 @@ class YooMoneyPayment(Payment):
         cls._try_authorize()
 
     def update(self) -> None:
-        """Updates payment status and income."""
-
         try:
             response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
                                      headers=YooMoneyPayment._get_headers(),
@@ -168,9 +166,7 @@ class YooMoneyPayment(Payment):
 
     @property
     def _sum_with_commission(self) -> float:
-        """
-        https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions
-        """
+        """https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions"""
         if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
             if self._payment_type == YooMoneyPaymentType.WALLET:
                 commission_multiplier = 0.01

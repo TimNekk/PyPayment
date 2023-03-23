@@ -204,7 +204,7 @@ class PayOkPayment(Payment):
 
         if response.status_code != 200:
             raise AuthorizationError(response.text)
-        elif response.json().get("status") == "error":
+        if response.json().get("status") == "error":
             raise AuthorizationError(response.json())
 
         data = {
@@ -225,9 +225,9 @@ class PayOkPayment(Payment):
 
         if response.status_code != 200:
             raise AuthorizationError(response.text)
-        elif "Такой магазин не зарегистрирован." in response.text:
+        if "Такой магазин не зарегистрирован." in response.text:
             raise AuthorizationError("Invalid shop ID")
-        elif "Неверная подпись." in response.text:
+        if "Неверная подпись." in response.text:
             raise AuthorizationError("Invalid shop secret key")
 
         cls.authorized = True
