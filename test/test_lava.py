@@ -5,16 +5,19 @@ from pypayment.enums.status import PaymentStatus
 from test import lava_token, lava_wallet
 
 
+@pytest.mark.skip(reason="Lava API is not working")
 def test_payment_creation_without_authorization():
     with pytest.raises(NotAuthorized):
         LavaPayment(1)
 
 
+@pytest.mark.skip(reason="Lava API is not working")
 def test_authorization_with_invalid_key():
     with pytest.raises(AuthorizationError):
         LavaPayment.authorize("invalid token", lava_wallet)
 
 
+@pytest.mark.skip(reason="Lava API is not working")
 def test_authorization():
     LavaPayment.authorize(lava_token, lava_wallet)
     assert LavaPayment.authorized
