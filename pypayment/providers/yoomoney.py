@@ -3,8 +3,9 @@ from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
-    AuthorizationError, ChargeCommission
+from pypayment import Payment, PaymentCreationError, PaymentGettingError, AuthorizationError
+from pypayment.enums.commission import ChargeCommission
+from pypayment.enums.status import PaymentStatus
 
 
 class YooMoneyPaymentType(Enum):
@@ -21,7 +22,6 @@ class YooMoneyPaymentType(Enum):
 class YooMoneyPayment(Payment):
     """YooMoney payment class."""
 
-    authorized = False
     _access_token: str
     _account_id: Optional[str] = None
     _payment_type: YooMoneyPaymentType
@@ -64,16 +64,123 @@ class YooMoneyPayment(Payment):
         :raise NotAuthorized: When class was not authorized with YooMoneyPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not YooMoneyPayment.authorized:
-            raise NotAuthorized("You need to authorize first: YooMoneyPayment.authorize()")
-
         self._payment_type = YooMoneyPayment._payment_type if payment_type is None else payment_type
         self._charge_commission = YooMoneyPayment._charge_commission if charge_commission is None else charge_commission
         self._success_url = YooMoneyPayment._success_url if success_url is None else success_url
 
         super().__init__(amount, description, id)
 
-        self._url = self._create()
+    @classmethod
+    def authorize(cls,
+                  access_token: str,
+                  payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
+                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
+                  success_url: Optional[str] = None) -> None:
+        """
+        Must be called before the first use of the class!
+
+        Tries to authorize to YooMoney API.
+        Saves passed parameters as default.
+
+        :param access_token: Use YooMoneyPayment.get_access_token() to get it.
+        :param payment_type: YooMoneyPaymentType enum.
+        :param charge_commission: ChargeCommission enum.
+        :param success_url: User will be redirected to this url after paying.
+
+        :raise AuthorizationError: When authorization fails.
+        """
+        YooMoneyPayment._access_token = access_token
+        YooMoneyPayment._payment_type = payment_type
+        YooMoneyPayment._charge_commission = charge_commission
+        YooMoneyPayment._success_url = success_url
+
+        cls._try_authorize()
+
+    def update(self) -> None:
+        """Updates payment status and income."""
+
+        try:
+            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
+                                     headers=YooMoneyPayment._get_headers(),
+                                     data={"label": self.id})
+        except Exception as e:
+            raise PaymentGettingError(e)
+
+        if response.status_code != 200:
+            raise PaymentGettingError(response.text)
+
+        operations = response.json().get("operations")
+
+        if not operations:
+            return
+
+        payment: Mapping[str, Any] = operations[0]
+
+        status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
+        if status:
+            self.status = status
+
+        self.income = payment.get("amount")
+
+    def _create_url(self) -> str:
+        data = {
+            "receiver": YooMoneyPayment._account_id,
+            "quickpay-form": "shop",
+            "targets": self.id,
+            "paymentType": self._payment_type.value,
+            "sum": self._sum_with_commission,
+            "formcomment": self.description,
+            "short-dest": self.description,
+            "label": self.id,
+            "successURL": self._success_url
+        }
+
+        try:
+            response = requests.post(YooMoneyPayment._QUICKPAY_URL, headers=YooMoneyPayment._get_headers(), data=data)
+        except Exception as e:
+            raise PaymentCreationError(e)
+
+        if response.status_code != 200:
+            raise PaymentCreationError(response.text)
+
+        return str(response.url)
+
+    @classmethod
+    def _try_authorize(cls) -> None:
+        try:
+            response = requests.get(cls._ACCOUNT_INFO_URL, headers=cls._get_headers())
+        except Exception as e:
+            raise AuthorizationError(e)
+
+        if response.status_code != 200:
+            raise AuthorizationError("Access Token is invalid.")
+
+        cls._account_id = response.json().get('account')
+        cls.authorized = True
+
+    @classmethod
+    def _get_headers(cls) -> Mapping[str, str]:
+        return {
+            "Authorization": f"Bearer {cls._access_token}",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json"
+        }
+
+    @property
+    def _sum_with_commission(self) -> float:
+        """
+        https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions
+        """
+        if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
+            if self._payment_type == YooMoneyPaymentType.WALLET:
+                commission_multiplier = 0.01
+                return self.amount * (1 + commission_multiplier)
+
+            if self._payment_type == YooMoneyPaymentType.CARD:
+                commission_multiplier = 0.03
+                return self.amount / (1 - commission_multiplier)
+
+        return self.amount
 
     @classmethod
     def get_access_token(cls,
@@ -129,131 +236,3 @@ class YooMoneyPayment(Payment):
               access_token)
 
         return access_token
-
-    @classmethod
-    def _get_headers(cls) -> Mapping[str, str]:
-        return {
-            "Authorization": f"Bearer {cls._access_token}",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
-        }
-
-    @classmethod
-    def authorize(cls,
-                  access_token: str,
-                  payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
-                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
-                  success_url: Optional[str] = None) -> None:
-        """
-        Must be called before the first use of the class!
-
-        Tries to authorize to YooMoney API.
-        Saves passed parameters as default.
-
-        :param access_token: Use YooMoneyPayment.get_access_token() to get it.
-        :param payment_type: YooMoneyPaymentType enum.
-        :param charge_commission: ChargeCommission enum.
-        :param success_url: User will be redirected to this url after paying.
-
-        :raise AuthorizationError: When authorization fails.
-        """
-        YooMoneyPayment._access_token = access_token
-        YooMoneyPayment._payment_type = payment_type
-        YooMoneyPayment._charge_commission = charge_commission
-        YooMoneyPayment._success_url = success_url
-
-        cls._try_authorize()
-
-    @classmethod
-    def _try_authorize(cls) -> None:
-        try:
-            response = requests.get(cls._ACCOUNT_INFO_URL, headers=cls._get_headers())
-        except Exception as e:
-            raise AuthorizationError(e)
-
-        if response.status_code != 200:
-            raise AuthorizationError("Access Token is invalid.")
-
-        cls._account_id = response.json().get('account')
-        cls.authorized = True
-
-    def _create(self) -> str:
-        data = {
-            "receiver": YooMoneyPayment._account_id,
-            "quickpay-form": "shop",
-            "targets": self.id,
-            "paymentType": self._payment_type.value,
-            "sum": self.sum_with_commission,
-            "formcomment": self.description,
-            "short-dest": self.description,
-            "label": self.id,
-            "successURL": self._success_url
-        }
-
-        try:
-            response = requests.post(YooMoneyPayment._QUICKPAY_URL, headers=YooMoneyPayment._get_headers(), data=data)
-        except Exception as e:
-            raise PaymentCreationError(e)
-
-        if response.status_code != 200:
-            raise PaymentCreationError(response.text)
-
-        return str(response.url)
-
-    @property
-    def sum_with_commission(self) -> float:
-        """
-        https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions
-        """
-        if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
-            if self._payment_type == YooMoneyPaymentType.WALLET:
-                commission_multiplier = 0.01
-                return self.amount * (1 + commission_multiplier)
-
-            if self._payment_type == YooMoneyPaymentType.CARD:
-                commission_multiplier = 0.03
-                return self.amount / (1 - commission_multiplier)
-
-        return self.amount
-
-    def _get_payment(self) -> Optional[Mapping[str, Any]]:
-        try:
-            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
-                                     headers=YooMoneyPayment._get_headers(),
-                                     data={"label": self.id})
-        except Exception as e:
-            raise PaymentGettingError(e)
-
-        if response.status_code != 200:
-            raise PaymentGettingError(response.text)
-
-        operations = response.json().get("operations")
-
-        if operations:
-            payment: Mapping[str, Any] = operations[0]
-            return payment
-
-        return None
-
-    @property
-    def url(self) -> str:
-        return self._url
-
-    @property
-    def status(self) -> PaymentStatus:
-        payment = self._get_payment()
-        status: Optional[PaymentStatus] = None
-
-        if payment:
-            status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
-
-        return status if status else PaymentStatus.WAITING
-
-    @property
-    def income(self) -> Optional[float]:
-        payment = self._get_payment()
-
-        if payment:
-            return payment.get("amount")
-
-        return None
