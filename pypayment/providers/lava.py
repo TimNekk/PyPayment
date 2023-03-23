@@ -3,14 +3,14 @@ from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
-    AuthorizationError, ChargeCommission
+from pypayment import Payment, PaymentCreationError, PaymentGettingError, AuthorizationError
+from pypayment.enums.commission import ChargeCommission
+from pypayment.enums.status import PaymentStatus
 
 
 class LavaPayment(Payment):
     """Lava payment class."""
 
-    authorized = False
     _token: Optional[str] = None
     _wallet_to: Optional[str] = None
     _expiration_duration: timedelta
@@ -20,7 +20,7 @@ class LavaPayment(Payment):
     _BASE_URL = "https://api.lava.ru"
     _PING_URL = _BASE_URL + "/test/ping"
     _INVOICE_URL = _BASE_URL + "/invoice"
-    _CREATE_URL = _INVOICE_URL + "/create"
+    _CREATING_URL = _INVOICE_URL + "/create"
     _INFO_URL = _INVOICE_URL + "/info"
     _STATUS_MAP = {
         "success": PaymentStatus.PAID,
@@ -56,9 +56,6 @@ class LavaPayment(Payment):
         :raise NotAuthorized: When class was not authorized with LavaPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not LavaPayment.authorized:
-            raise NotAuthorized("You need to authorize first: LavaPayment.authorize()")
-
         self._wallet_to = LavaPayment._wallet_to if wallet_to is None else wallet_to
         self._expiration_duration = LavaPayment._expiration_duration if expiration_duration is None else expiration_duration
         self._charge_commission = LavaPayment._charge_commission if charge_commission is None else charge_commission
@@ -66,15 +63,6 @@ class LavaPayment(Payment):
         self._fail_url = LavaPayment._fail_url if fail_url is None else fail_url
 
         super().__init__(amount, description, id)
-
-        self._url = self._create()
-
-    @classmethod
-    def _get_headers(cls) -> Mapping[str, str]:
-        return {
-            "Authorization": str(cls._token),
-            "Accept": "application/json"
-        }
 
     @classmethod
     def authorize(cls,
@@ -108,19 +96,7 @@ class LavaPayment(Payment):
 
         cls._try_authorize()
 
-    @classmethod
-    def _try_authorize(cls) -> None:
-        try:
-            response = requests.get(LavaPayment._PING_URL, headers=LavaPayment._get_headers()).json()
-        except Exception as e:
-            raise AuthorizationError(e)
-
-        if response.get("status") is not True:
-            raise AuthorizationError(response.get("message"))
-
-        cls.authorized = True
-
-    def _create(self) -> str:
+    def _create_url(self) -> str:
         data = {
             "wallet_to": self._wallet_to,
             "sum": round(self.amount, 2),
@@ -133,7 +109,7 @@ class LavaPayment(Payment):
         }
 
         try:
-            response = requests.post(LavaPayment._CREATE_URL, headers=LavaPayment._get_headers(), data=data)
+            response = requests.post(LavaPayment._CREATING_URL, headers=LavaPayment._get_headers(), data=data)
         except Exception as e:
             raise PaymentCreationError(e)
 
@@ -142,7 +118,7 @@ class LavaPayment(Payment):
 
         return str(response.json().get("url"))
 
-    def _get_payment(self) -> Optional[Mapping[str, Any]]:
+    def update(self) -> None:
         try:
             response = requests.post(LavaPayment._INFO_URL,
                                      headers=LavaPayment._get_headers(),
@@ -154,33 +130,34 @@ class LavaPayment(Payment):
         if response.status_code != 200 or response_json.get("status") != "success":
             raise PaymentCreationError(response.text)
 
-        if response_json.get("invoice"):
-            payment: Mapping[str, Any] = response_json.get("invoice")
-            return payment
+        payment: Mapping[str, Any] = response_json.get("invoice")
 
-        return None
+        if not payment:
+            return
 
-    @property
-    def url(self) -> str:
-        return self._url
+        status_literal = payment.get("status")
+        if status_literal:
+            status = LavaPayment._STATUS_MAP.get(str(status_literal))
+            if status:
+                self.status = status
 
-    @property
-    def status(self) -> PaymentStatus:
-        payment = self._get_payment()
-        status: Optional[PaymentStatus] = None
+        self.income = float(str(payment.get("sum")))
 
-        if payment:
-            status_literal = payment.get("status")
-            if status_literal:
-                status = LavaPayment._STATUS_MAP.get(str(status_literal))
+    @classmethod
+    def _get_headers(cls) -> Mapping[str, str]:
+        return {
+            "Authorization": str(cls._token),
+            "Accept": "application/json"
+        }
 
-        return status if status else PaymentStatus.WAITING
+    @classmethod
+    def _try_authorize(cls) -> None:
+        try:
+            response = requests.get(LavaPayment._PING_URL, headers=LavaPayment._get_headers()).json()
+        except Exception as e:
+            raise AuthorizationError(e)
 
-    @property
-    def income(self) -> Optional[float]:
-        payment = self._get_payment()
+        if response.get("status") is not True:
+            raise AuthorizationError(response.get("message"))
 
-        if payment:
-            return float(str(payment.get("sum")))
-
-        return None
+        cls.authorized = True

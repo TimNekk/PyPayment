@@ -5,7 +5,8 @@ from typing import Optional, Any, Mapping
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentGettingError, AuthorizationError
+from pypayment import Payment, PaymentGettingError, AuthorizationError
+from pypayment.enums.status import PaymentStatus
 
 
 class PayOkPaymentType(Enum):
@@ -65,7 +66,6 @@ class PayOkCurrency(Enum):
 class PayOkPayment(Payment):
     """PayOk payment class."""
 
-    authorized = False
     _api_key: str
     _api_id: int
     _shop_id: int
@@ -107,19 +107,11 @@ class PayOkPayment(Payment):
         :raise NotAuthorized: When class was not authorized with PayOkPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not PayOkPayment.authorized:
-            raise NotAuthorized("You need to authorize first: PayOkPayment.authorize()")
-
         self._payment_type = PayOkPayment._payment_type if payment_type is None else payment_type
         self._currency = PayOkPayment._currency if currency is None else currency
         self._success_url = PayOkPayment._success_url if success_url is None else success_url
 
         super().__init__(amount, description, id)
-        self.id: str = str(self.id[:16])
-        if not description:
-            self.description = self.id
-
-        self._url = self._create()
 
     @classmethod
     def authorize(cls,
@@ -136,7 +128,7 @@ class PayOkPayment(Payment):
         Tries to authorize to PayOk API.
         Saves passed parameters as default.
 
-        :param api_key: API key from https://payok.io/cabinet/api.php (`Balance` and `Transactions` permissions are required)
+        :param api_key: API key from https://payok.io/cabinet/api.php (`Balance` and `Transactions` permissions required)
         :param api_id: ID of API key from https://payok.io/cabinet/api.php
         :param shop_id: ID of shop from https://payok.io/cabinet/main.php
         :param shop_secret_key: Secret key of shop from https://payok.io/cabinet/main.php
@@ -155,6 +147,49 @@ class PayOkPayment(Payment):
         PayOkPayment._success_url = success_url
 
         cls._try_authorize()
+
+    def _create_url(self) -> str:
+        data = {
+            "amount": self.amount,
+            "payment": self.id,
+            "shop": PayOkPayment._shop_id,
+            "desc": self.description,
+            "currency": self._currency.value,
+            "success_url": self._success_url,
+            "method": self._payment_type.value
+        }
+
+        sign_str = "|".join(map(str, (
+            data["amount"], data["payment"], data["shop"], data["currency"], data["desc"],
+            PayOkPayment._shop_secret_key)))
+        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
+
+        return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
+
+    def update(self) -> None:
+        data = {
+            "API_ID": PayOkPayment._api_id,
+            "API_KEY": PayOkPayment._api_key,
+            "shop": PayOkPayment._shop_id,
+            "payment": self.id
+        }
+        try:
+            response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
+        except Exception as e:
+            raise PaymentGettingError(e)
+
+        if response.get("status") != "success":
+            return
+
+        payment: Mapping[str, Any] = response.get("1")
+
+        transaction_status = payment.get("transaction_status")
+        if transaction_status:
+            status = PayOkPayment._STATUS_MAP.get(transaction_status)
+            if status:
+                self.status = status
+
+        self.income = float(str(payment.get("amount_profit")))
 
     @classmethod
     def _try_authorize(cls) -> None:
@@ -179,7 +214,9 @@ class PayOkPayment(Payment):
             "desc": "test",
             "currency": "RUB",
         }
-        sign_str = "|".join(map(str, (data["amount"], data["payment"], data["shop"], data["currency"], data["desc"], PayOkPayment._shop_secret_key)))
+        sign_str = "|".join(map(str, (
+            data["amount"], data["payment"], data["shop"], data["currency"], data["desc"],
+            PayOkPayment._shop_secret_key)))
         data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
         try:
             response = requests.post(PayOkPayment._PAY_URL, data=data)
@@ -194,62 +231,3 @@ class PayOkPayment(Payment):
             raise AuthorizationError("Invalid shop secret key")
 
         cls.authorized = True
-
-    def _create(self) -> str:
-        data = {
-            "amount": self.amount,
-            "payment": self.id,
-            "shop": PayOkPayment._shop_id,
-            "desc": self.description,
-            "currency": self._currency.value,
-            "success_url": self._success_url,
-            "method": self._payment_type.value
-        }
-
-        sign_str = "|".join(map(str, (data["amount"], data["payment"], data["shop"], data["currency"], data["desc"], PayOkPayment._shop_secret_key)))
-        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
-
-        return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
-
-    def _get_payment(self) -> Optional[Mapping[str, Any]]:
-        data = {
-            "API_ID": PayOkPayment._api_id,
-            "API_KEY": PayOkPayment._api_key,
-            "shop": PayOkPayment._shop_id,
-            "payment": self.id
-        }
-        try:
-            response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
-        except Exception as e:
-            raise PaymentGettingError(e)
-
-        if response.get("status") == "success":
-            payment: Mapping[str, Any] = response.get("1")
-            return payment
-
-        return None
-
-    @property
-    def url(self) -> str:
-        return self._url
-
-    @property
-    def status(self) -> PaymentStatus:
-        payment = self._get_payment()
-        status: Optional[PaymentStatus] = None
-
-        if payment:
-            transaction_status = payment.get("transaction_status")
-            if transaction_status:
-                status = PayOkPayment._STATUS_MAP.get(transaction_status)
-
-        return status if status else PaymentStatus.WAITING
-
-    @property
-    def income(self) -> Optional[float]:
-        payment = self._get_payment()
-
-        if payment:
-            return float(str(payment.get("amount_profit")))
-
-        return None

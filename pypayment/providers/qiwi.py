@@ -5,8 +5,9 @@ from typing import Optional, Mapping, Any
 
 import requests
 
-from pypayment import Payment, PaymentStatus, NotAuthorized, PaymentCreationError, PaymentGettingError, \
+from pypayment import Payment, PaymentCreationError, PaymentGettingError, \
     AuthorizationError
+from pypayment.enums.status import PaymentStatus
 
 
 class QiwiPaymentType(Enum):
@@ -23,7 +24,6 @@ class QiwiPaymentType(Enum):
 class QiwiPayment(Payment):
     """Qiwi payment class."""
 
-    authorized = False
     _secret_key: Optional[str] = None
     _theme_code: Optional[str] = None
     _expiration_duration: timedelta
@@ -60,24 +60,11 @@ class QiwiPayment(Payment):
         :raise NotAuthorized: When class was not authorized with QiwiPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        if not QiwiPayment.authorized:
-            raise NotAuthorized("You need to authorize first: QiwiPayment.authorize()")
-
         self._theme_code = QiwiPayment._theme_code if theme_code is None else theme_code
         self._expiration_duration = QiwiPayment._expiration_duration if expiration_duration is None else expiration_duration
         self._payment_type = QiwiPayment._payment_type if payment_type is None else payment_type
 
         super().__init__(amount, description, id)
-
-        self._url = self._create()
-
-    @classmethod
-    def _get_headers(cls) -> Mapping[str, str]:
-        return {
-            "Authorization": f"Bearer {cls._secret_key}",
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
 
     @classmethod
     def authorize(cls,
@@ -105,19 +92,7 @@ class QiwiPayment(Payment):
 
         cls._try_authorize()
 
-    @classmethod
-    def _try_authorize(cls) -> None:
-        try:
-            response = requests.get(QiwiPayment._API_URL, headers=QiwiPayment._get_headers())
-        except Exception as e:
-            raise AuthorizationError(e)
-
-        if response.status_code == 401:
-            raise AuthorizationError("Secret key is invalid.")
-
-        cls.authorized = True
-
-    def _create(self) -> str:
+    def _create_url(self) -> str:
         data = {
             "amount": {
                 "currency": "RUB",
@@ -143,7 +118,7 @@ class QiwiPayment(Payment):
 
         return str(response.json().get("payUrl"))
 
-    def _get_payment(self) -> Optional[Mapping[str, Any]]:
+    def update(self) -> None:
         try:
             response = requests.get(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers())
         except Exception as e:
@@ -152,34 +127,37 @@ class QiwiPayment(Payment):
         if response.status_code != 200:
             raise PaymentGettingError(response.text)
 
-        if response:
-            payment: Mapping[str, Any] = response.json()
-            return payment
-        return None
+        if not response:
+            return
 
-    @property
-    def url(self) -> str:
-        return self._url
+        payment: Mapping[str, Any] = response.json()
 
-    @property
-    def status(self) -> PaymentStatus:
-        payment = self._get_payment()
-        status: Optional[PaymentStatus] = None
+        status_literal = payment.get("status")
+        if status_literal:
+            status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
+            if status:
+                self.status = status
 
-        if payment:
-            status_literal = payment.get("status")
-            if status_literal:
-                status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
+        amount = payment.get("amount")
+        if amount:
+            self.income = float(amount.get("value"))
 
-        return status if status else PaymentStatus.WAITING
+    @classmethod
+    def _get_headers(cls) -> Mapping[str, str]:
+        return {
+            "Authorization": f"Bearer {cls._secret_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
 
-    @property
-    def income(self) -> Optional[float]:
-        payment = self._get_payment()
+    @classmethod
+    def _try_authorize(cls) -> None:
+        try:
+            response = requests.get(QiwiPayment._API_URL, headers=QiwiPayment._get_headers())
+        except Exception as e:
+            raise AuthorizationError(e)
 
-        if payment:
-            amount = payment.get("amount")
-            if amount:
-                return float(amount.get("value"))
+        if response.status_code == 401:
+            raise AuthorizationError("Secret key is invalid.")
 
-        return None
+        cls.authorized = True
