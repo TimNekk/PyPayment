@@ -1,6 +1,7 @@
 import pytest
 
-from pypayment import PayOkPayment, Payment, PaymentStatus, AuthorizationError, NotAuthorized
+from pypayment import PayOkPayment, Payment, AuthorizationError, NotAuthorized
+from pypayment.enums.status import PaymentStatus
 from test import payok_api_key, payok_api_id, payok_shop_id, payok_shop_secret_key
 
 
@@ -58,9 +59,11 @@ def test_url_getting():
 
 def test_status_getting():
     payment: Payment = PayOkPayment(1)
+    payment.update()
     assert payment.status == PaymentStatus.WAITING
 
 
 def test_income_getting():
     payment: Payment = PayOkPayment(1)
+    payment.update()
     assert payment.income is None

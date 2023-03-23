@@ -1,6 +1,7 @@
 import pytest
 
-from pypayment import YooMoneyPayment, Payment, PaymentStatus, AuthorizationError, NotAuthorized
+from pypayment import YooMoneyPayment, Payment, AuthorizationError, NotAuthorized
+from pypayment.enums.status import PaymentStatus
 from test import yoomoney_access_token
 
 
@@ -31,11 +32,13 @@ def test_url_getting():
 
 def test_status_getting():
     payment: Payment = YooMoneyPayment(1)
+    payment.update()
     assert payment.status == PaymentStatus.WAITING
 
 
 def test_income_getting():
     payment: Payment = YooMoneyPayment(1)
+    payment.update()
     assert payment.income is None
 
 
