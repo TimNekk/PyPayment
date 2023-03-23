@@ -1,6 +1,7 @@
 import pytest
 
-from pypayment import QiwiPayment, Payment, PaymentStatus, AuthorizationError, NotAuthorized
+from pypayment import QiwiPayment, Payment, AuthorizationError, NotAuthorized
+from pypayment.enums.status import PaymentStatus
 from test import qiwi_secret_key
 
 
@@ -31,9 +32,11 @@ def test_url_getting():
 
 def test_status_getting():
     payment: Payment = QiwiPayment(1)
+    payment.update()
     assert payment.status == PaymentStatus.WAITING
 
 
 def test_income_getting():
     payment: Payment = QiwiPayment(1)
+    payment.update()
     assert payment.income == 1
