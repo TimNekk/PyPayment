@@ -16,21 +16,26 @@
 </p>
 
 <p align="center">
+  <a href="https://pypayment.readthedocs.io">Documentation</a> •
   <a href="#providers">Providers</a> •
   <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#enums">Enums</a> •
-  <a href="#exceptions">Exceptions</a> •
+  <a href="#quickstart">Quickstart</a> •
   <a href="#contributing">Contributing</a> •
   <a href="#license">License</a>
 </p>
+
+**PyPayment** is a Python wrapper for API of different payment providers. 
+It is designed to be a simple and easy to use library for developers to integrate payment into their applications.
+
+Main idea is to provide a unified interface for different payment providers.
+
+For more details see [documentation](https://pypayment.readthedocs.io).
 
 ## Providers:
 - [Qiwi P2P](https://p2p.qiwi.com/)
 - [YooMoney](https://yoomoney.ru/)
 - [PayOk](https://payok.io/)
-- [Lava](https://lava.kz/)
-
+- [Lava](https://lava.kz/) *(under development)*
 ## Installation
 
 Install the current version with [PyPI](https://pypi.org/project/pypayment/)
@@ -39,31 +44,9 @@ Install the current version with [PyPI](https://pypi.org/project/pypayment/)
 pip install -U pypayment
 ```
 
-## Usage
+## Quickstart
 
-The module provides an interface `Payment` for the unification of each payment provider.
-
-It has 3 properties:
-
-- `url` - Link to the created payment form.
-- `status` - Current payment status.
-- `income` - Income (profit) from the payment.
-
-```python
-from pypayment import Payment
-```
-
-
-<details>
-  <summary>
-    <img src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/1024/Qiwi-icon.png" align="left" height="40">
-    <br><br>
-    <b>Qiwi</b>
-  </summary>
-
-#### Authorization
-
-Before using `QiwiPayment` class you must authorize with [secret key](https://qiwi.com/p2p-admin/transfers/api) from QIWI P2P.
+Choose payment provider and authorize. For example, for Qiwi
 
 ```python
 from pypayment import QiwiPayment
@@ -71,480 +54,48 @@ from pypayment import QiwiPayment
 QiwiPayment.authorize("my_secret_key")
 ```
 
-You can set default parameters for every `QiwiPayment` instance.
-
-- `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
-- `expiration_duration` - Time that the invoice will be available for payment.
-- `payment_type` - [QiwiPaymentType](#qiwi-payment-types) enum.
-
-```python
-from pypayment import QiwiPayment, QiwiPaymentType
-from datetime import timedelta
-
-QiwiPayment.authorize("my_secret_key",
-                      theme_code="my_theme_code",
-                      expiration_duration=timedelta(hours=1),
-                      payment_type=QiwiPaymentType.CARD)
-```
-
-#### Creating invoice
-
-To created new QIWI invoice, you need to instantiate `QiwiPayment` with 1 required parameter.
-
-- `amount` - The amount to be invoiced. _(will be rounded to 2 decimal places)_
+Create a payment and get it's `url`
 
 ```python
 from pypayment import Payment, QiwiPayment
 
-payment: Payment = QiwiPayment(amount=123.45)
+payment: Payment = QiwiPayment(amount=100) # E.x. commission is 10%
 
 print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id
 ```
 
-And 4 optional parameters that will override default ones for specific instance.
+Wait for payment to be completed and get it's income
 
-- `description` - Payment comment that will be displayed to user.
-- `theme_code` - Code for displaying custom name and colors of the form. (Get it [here](https://qiwi.com/p2p-admin/transfers/link))
-- `expiration_duration` - Time that the invoice will be available for payment.
-- `payment_type` - [QiwiPaymentType](#qiwi-payment-types) enum.
+Use `update()` method to update payment's `status` and `income`
 
 ```python
-from pypayment import Payment, QiwiPayment, QiwiPaymentType
-from datetime import timedelta
+from pypayment import PaymentStatus
 
-different_payment: Payment = QiwiPayment(amount=987.65,
-                                         description="Flower pot",
-                                         theme_code="my_new_theme_code",
-                                         expiration_duration=timedelta(days=3),
-                                         payment_type=QiwiPaymentType.CARD)
+while payment.status != PaymentStatus.PAID:
+    input("Press Enter to update payment status and income")
+    payment.update()
 
-print(different_payment.url) # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id_2
+print("Payment is completed!")
+print(payment.income)  # 90.0
 ```
 
-_Recommended to put `QiwiPayment` into `Payment` variable to keep unification._
-
-#### Getting status
-
-To get payment [status](#payment-statuses), you need to use `status` property.
+Summary
 
 ```python
 from pypayment import Payment, QiwiPayment, PaymentStatus
 
-payment: Payment = QiwiPayment(100)
+QiwiPayment.authorize("my_secret_key")
 
-if payment.status == PaymentStatus.PAID:
-    print("Got ur money!")  # Got ur money!
+payment: Payment = QiwiPayment(amount=100) # E.x. commission is 10%
+print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id
+
+while payment.status != PaymentStatus.PAID:
+    input("Press Enter to update payment status")
+    payment.update()
+
+print("Payment is completed!")
+print(payment.income)  # 90.0
 ```
-
-#### Getting income
-
-To get payment income (profit), you need to use `income` property.
-
-```python
-from pypayment import Payment, QiwiPayment
-
-payment: Payment = QiwiPayment(100)  # E.x. commission is 10%
-
-income = payment.income
-if income:
-    print(income)  # 90.0
-```
-
-#### Qiwi Payment Types
-
-Enum `QiwiPaymentType` that represents every possible Qiwi payment type.
-
-- `WALLET` - Payment with Qiwi wallet.
-- `CARD` - Payment with bank card.
-- `ALL` - Payment with every type possible.
-
-</details>
-
-
-<details>
-  <summary>
-    <img src="https://static.insales-cdn.com/files/1/19/20037651/original/_.png" align="left" height="40">
-    <br><br>
-    <b>YooMoney</b>
-  </summary>
-
-#### Getting access token
-
-You need to get `access_token` to authorize.
-
-- `client_id` - Create new application and copy client_id (Do it [here](https://yoomoney.ru/myservices/new))
-- `redirect_uri` - redirect_uri you specified when creating the application.
-- `instance_name` - (Optional) ID of the authorization instance in the application.
-
-```python
-from pypayment import YooMoneyPayment
-
-YooMoneyPayment.get_access_token(client_id="my_client_id",
-                                 redirect_uri="my_redirect_uri",
-                                 instance_name="my_instance_name")  # access_token = XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-#### Authorization
-
-Before using `YooMoneyPayment` class you must authorize with [access_token](#getting-access-token).
-
-```python
-from pypayment import YooMoneyPayment
-
-YooMoneyPayment.authorize("my_access_token")
-```
-
-You can set default parameters for every `YooMoneyPayment` instance.
-
-- `payment_type` - [YooMoney Payment Type](#yoomoney-payment-types) enum.
-- `charge_commission` - [Charge Commission](#charge-commission) enum.
-- `success_url` - User will be redirected to this url after paying.
-
-```python
-from pypayment import YooMoneyPayment, YooMoneyPaymentType, ChargeCommission
-
-YooMoneyPayment.authorize("my_access_token",
-                          payment_type=YooMoneyPaymentType.CARD,
-                          charge_commission=ChargeCommission.FROM_CUSTOMER,
-                          success_url="my_success_url.com")
-```
-
-#### Creating invoice
-
-To created new YooMoney invoice, you need to instantiate `YooMoneyPayment` with 1 required parameter.
-
-- `amount` - The amount to be invoiced. _(will be rounded to 2 decimal places)_
-
-```python
-from pypayment import Payment, YooMoneyPayment
-
-payment: Payment = YooMoneyPayment(amount=123.45)
-
-print(payment.url)  # https://yoomoney.ru/transfer/quickpay?requestId=XXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-And 3 optional parameters that will override default ones for specific instance.
-
-- `description` - Payment comment that will be displayed to user.
-- `payment_type` - [YooMoney Payment Type](#yoomoney-payment-types) enum.
-- `charge_commission` - [Charge Commission](#charge-commission) enum.
-- `success_url` - User will be redirected to this url after paying.
-
-```python
-from pypayment import Payment, YooMoneyPayment, YooMoneyPaymentType, ChargeCommission
-
-different_payment: Payment = YooMoneyPayment(amount=987.65,
-                                             description="Flower pot",
-                                             payment_type=YooMoneyPaymentType.CARD,
-                                             charge_commission=ChargeCommission.FROM_CUSTOMER,
-                                             success_url="my_success_url.com")
-
-print(different_payment.url)  # https://yoomoney.ru/transfer/quickpay?requestId=XXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-_Recommended to put `YooMoneyPayment` into `Payment` variable to keep unification._
-
-#### Getting status
-
-To get payment [status](#payment-statuses), you need to use `status` property.
-
-```python
-from pypayment import Payment, YooMoneyPayment, PaymentStatus
-
-payment: Payment = YooMoneyPayment(100)
-
-if payment.status == PaymentStatus.PAID:
-    print("Got ur money!")  # Got ur money!
-```
-
-#### Getting income
-
-To get payment income (profit), you need to use `income` property.
-
-```python
-from pypayment import Payment, YooMoneyPayment
-
-payment: Payment = YooMoneyPayment(100)  # E.x. commission is 10%
-
-income = payment.income
-if income:
-    print(income)  # 90.0
-```
-
-#### YooMoney Payment Types
-
-Enum `YooMoneyPaymentType` that represents every possible yoomoney payment type.
-
-- `WALLET` - Payment with YooMoney wallet.
-- `CARD` - Payment with bank card.
-- `PHONE` - Payment from phone balance.
-
-</details>
-
-
-<details>
-  <summary>
-    <img src="https://payok.io/files/image/logo_white.svg" align="left" height="40">
-    <br><br>
-    <b>PayOk</b>
-  </summary>
-
-#### Authorization
-
-Before using `PayOkPayment` class you must authorize with:
-
-- [API Key](https://payok.io/cabinet/api.php) (`Balance` and `Transactions` permissions are required)
-- [API ID](https://payok.io/cabinet/api.php)
-- [Shop ID](https://payok.io/cabinet/main.php)
-- [Shop secret key](https://payok.io/cabinet/main.php)
-
-```python
-from pypayment import PayOkPayment
-
-PayOkPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_key")
-```
-
-You can set default parameters for every `PayOkPayment` instance.
-
-- `payment_type` - [PayOkPaymentType](#payok-payment-types) enum.
-- `currency` - [PayOkCurrency](#payok-currency) enum.
-- `success_url` - User will be redirected to this url after paying.
-
-```python
-from pypayment import PayOkPayment, PayOkPaymentType, PayOkCurrency
-
-PayOkPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_key",
-                        payment_type=PayOkPaymentType.CARD,
-                        currency=PayOkCurrency.RUB,
-                        success_url="my_success_url.com")
-```
-
-#### Creating invoice
-
-To created new PayOk invoice, you need to instantiate `PayOkPayment` with 1 required parameter.
-
-- `amount` - The amount to be invoiced.
-
-```python
-from pypayment import Payment, PayOkPayment
-
-payment: Payment = PayOkPayment(amount=123)
-
-print(payment.url)  # https://payok.io/pay?amount=XXX&...
-```
-
-And 4 optional parameters that will override default ones for specific instance.
-
-- `description` - Payment comment that will be displayed to user.
-- `payment_type` - [PayOkPaymentType](#payok-payment-types) enum.
-- `currency` - [PayOkCurrency](#payok-currency) enum.
-- `success_url` - User will be redirected to this url after paying.
-
-```python
-from pypayment import Payment, PayOkPayment, PayOkPaymentType, PayOkCurrency
-
-different_payment: Payment = PayOkPayment(amount=987.65,
-                                          description="Flower pot",
-                                          payment_type=PayOkPaymentType.CARD,
-                                          currency=PayOkCurrency.RUB,
-                                          success_url="my_success_url.com")
-
-print(different_payment.url) # https://payok.io/pay?amount=XXX&...
-```
-
-_Recommended to put `PayOkPayment` into `Payment` variable to keep unification._
-
-#### Getting status
-
-To get payment [status](#payment-statuses), you need to use `status` property.
-
-```python
-from pypayment import Payment, PayOkPayment, PaymentStatus
-
-payment: Payment = PayOkPayment(100)
-
-if payment.status == PaymentStatus.PAID:
-    print("Got ur money!")  # Got ur money!
-```
-
-#### Getting income
-
-To get payment income (profit), you need to use `income` property.
-
-```python
-from pypayment import Payment, PayOkPayment
-
-payment: Payment = PayOkPayment(100)  # E.x. commission is 10%
-
-income = payment.income
-if income:
-    print(income)  # 90.0
-```
-
-#### PayOk Payment Types
-
-Enum `PayOkPaymentType` that represents every possible PayOk payment type.
-
-- `CARD` - Payment with bank card.
-- `QIWI` - Payment with QIWI.
-- `YOOMONEY` - Payment with YooMoney.
-- `WEBMONEY` - Payment with WebMoney.
-- `PAYEER` - Payment with Payeer.
-- `PERFECT_MONEY` - Payment with Perfect Money.
-- `ADVCASH` - Payment with Advcash.
-- `BEELINE` - Payment with Beeline.
-- `MEGAFON` - Payment with Megafon.
-- `TELE2` - Payment with Tele2.
-- `MTS` - Payment with MTS.
-- `QIWI_MOBILE` - Payment with QIWI Mobile.
-- `BITCOIN` - Payment with Bitcoin.
-- `LITECOIN` - Payment with Litecoin.
-- `DOGECOIN` - Payment with Dogecoin.
-- `DASH` - Payment with Dash.
-- `ZCASH` - Payment with Zcash.
-
-#### PayOk Currency
-
-Enum `PayOkCurrency` that represents every possible PayOk currency.
-
-- `RUB` - Russian ruble.
-- `UAH` - Ukrainian hryvnia.
-- `USD` - United States dollar.
-- `EUR` - Euro.
-- `RUB2` - Russian ruble. _(Alternative Gateway)_
-
-</details>
-
-
-<details>
-  <summary>
-    <img src="https://lava.kz/_next/static/media/LAVA.7e12ca82.svg" align="left" height="40">
-    <br><br>
-    <b>Lava</b>
-  </summary>
-
-#### Authorization
-
-Before using `LavaPayment` class you must authorize with [token](https://lava.ru/dashboard/settings/api) and [wallet number](https://lava.ru/dashboard/) from Lava.
-
-```python
-from pypayment import LavaPayment
-
-LavaPayment.authorize("my_token", wallet_to="Rxxxxxxxxx")
-```
-
-You can set default parameters for every `LavaPayment` instance.
-
-- `expiration_duration` - Time that the invoice will be available for payment.
-- `charge_commission` - [Charge Commission](#charge-commission) enum.
-- `success_url` - User will be redirected to this url after paying.
-- `fail_url` - User will be redirected to this url if payment failed.
-
-
-```python
-from pypayment import LavaPayment, ChargeCommission
-from datetime import timedelta
-
-LavaPayment.authorize("my_token",
-                      wallet_to="Rxxxxxxxxx",
-                      expiration_duration=timedelta(hours=1),
-                      charge_commission=ChargeCommission.FROM_SELLER,
-                      success_url="my_success_url.com",
-                      fail_url="my_fail_url.com")
-```
-
-#### Creating invoice
-
-To created new Lava invoice, you need to instantiate `LavaPayment` with 1 required parameter.
-
-- `amount` - The amount to be invoiced. _(will be rounded to 2 decimal places)_
-
-```python
-from pypayment import Payment, LavaPayment
-
-payment: Payment = LavaPayment(amount=123.45)
-
-print(payment.url)  # https://acquiring.lava.kz/invoice/xxxxxxxxx-xxxxxxxxx-xxxxxxxxx-xxxxxxxxx
-```
-
-And 4 optional parameters that will override default ones for specific instance.
-
-- `expiration_duration` - Time that the invoice will be available for payment.
-- `charge_commission` - [Charge Commission](#charge-commission) enum.
-- `success_url` - User will be redirected to this url after paying.
-- `fail_url` - User will be redirected to this url if payment failed.
-
-```python
-from pypayment import Payment, LavaPayment, ChargeCommission
-from datetime import timedelta
-
-different_payment: Payment = LavaPayment(amount=987.65,
-                                         description="Flower pot",
-                                         expiration_duration=timedelta(hours=1),
-                                         charge_commission=ChargeCommission.FROM_SELLER,
-                                         success_url="my_success_url.com",
-                                         fail_url="my_fail_url.com")
-
-print(different_payment.url)  # https://acquiring.lava.kz/invoice/xxxxxxxxx-xxxxxxxxx-xxxxxxxxx-xxxxxxxxx
-```
-
-_Recommended to put `LavaPayment` into `Payment` variable to keep unification._
-
-#### Getting status
-
-To get payment [status](#payment-statuses), you need to use `status` property.
-
-```python
-from pypayment import Payment, LavaPayment, PaymentStatus
-
-payment: Payment = LavaPayment(100)
-
-if payment.status == PaymentStatus.PAID:
-    print("Got ur money!")  # Got ur money!
-```
-
-#### Getting income
-
-To get payment income (profit), you need to use `income` property.
-
-```python
-from pypayment import Payment, LavaPayment
-
-payment: Payment = LavaPayment(100)  # E.x. commission is 10%
-
-income = payment.income
-if income:
-    print(income)  # 90.0
-```
-
-</details>
-
-
-## Enums
-
-#### Charge Commission
-
-Enum `ChargeCommission` that represents who will be charged the commission.
-
-- `FROM_CUSTOMER` - Charge commission from customer.
-- `FROM_SELLER` - Charge commission from seller.
-
-#### Payment Statuses
-
-Enum that represents every possible status of the invoice.
-
-- `WAITING` - Payment has been created, but has not yet been paid.
-- `PAID` - Payment was successfully paid.
-- `REJECTED` - Payment was rejected.
-- `EXPIRED` - Payment has expired.
-
-
-## Exceptions
-
-- `NotAuthorized` - Raised when payment provider class has not been authorized.
-- `AuthorizationError` - Raised when authorization failed.
-- `PaymentCreationError` - Raised when payment creation failed.
-- `PaymentGettingError` - Raised when payment getting failed.
 
 ## Contributing
 
