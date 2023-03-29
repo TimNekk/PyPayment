@@ -3,7 +3,7 @@ Overview
 ********
 
 Concept
-==================
+=======
 
 **PyPayment** is a Python wrapper for API of different payment providers. 
 It is designed to be a simple and easy to use library for developers to integrate payment into their applications.
@@ -18,7 +18,7 @@ Supported providers:
 - **Lava** *(under development)*
 
 Quickstart
-==================
+==========
 
 Install the latest version with `PyPi <https://pypi.org/project/pypayment/>`_.
 
