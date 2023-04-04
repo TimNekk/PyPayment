@@ -5,8 +5,7 @@ from typing import Optional, Any, Mapping
 
 import requests
 
-from pypayment import Payment, PaymentGettingError, AuthorizationError
-from pypayment.enums.status import PaymentStatus
+from pypayment import Payment, PaymentGettingError, AuthorizationError, PaymentStatus
 
 
 class PayOkPaymentType(Enum):

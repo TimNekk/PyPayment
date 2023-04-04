@@ -1,7 +1,6 @@
 import pytest
 
-from pypayment import LavaPayment, Payment, AuthorizationError, NotAuthorized
-from pypayment.enums.status import PaymentStatus
+from pypayment import LavaPayment, Payment, AuthorizationError, NotAuthorized, PaymentStatus
 from test import lava_token, lava_wallet
 
 

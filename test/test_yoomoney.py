@@ -1,7 +1,6 @@
 import pytest
 
-from pypayment import YooMoneyPayment, Payment, AuthorizationError, NotAuthorized
-from pypayment.enums.status import PaymentStatus
+from pypayment import YooMoneyPayment, Payment, AuthorizationError, NotAuthorized, PaymentStatus
 from test import yoomoney_access_token
 
 

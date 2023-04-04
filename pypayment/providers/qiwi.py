@@ -6,8 +6,7 @@ from typing import Optional, Mapping, Any
 import requests
 
 from pypayment import Payment, PaymentCreationError, PaymentGettingError, \
-    AuthorizationError
-from pypayment.enums.status import PaymentStatus
+    AuthorizationError, PaymentStatus
 
 
 class QiwiPaymentType(Enum):
