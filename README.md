@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Payment providers API wrapper.</h4>
+<h4 align="center">Payment providers API wrapper</h4>
 
 <p class="badges" align="center">
     <img src="https://img.shields.io/pypi/v/pypayment?color=orange" alt="PyPI">
