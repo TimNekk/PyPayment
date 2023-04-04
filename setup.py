@@ -1,5 +1,5 @@
 from io import open
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 version = '1.1.3'
@@ -26,7 +26,7 @@ setup(
 
     license='Apache License, Version 2.0, see LICENSE file',
 
-    packages=[name],
+    packages=find_packages(),
     install_requires=[
         'requests'
     ],
