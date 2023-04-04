@@ -1,7 +1,6 @@
 import pytest
 
-from pypayment import QiwiPayment, Payment, AuthorizationError, NotAuthorized
-from pypayment.enums.status import PaymentStatus
+from pypayment import QiwiPayment, Payment, AuthorizationError, NotAuthorized, PaymentStatus
 from test import qiwi_secret_key
 
 

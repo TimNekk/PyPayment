@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from uuid import uuid4
 
-from pypayment import NotAuthorized
-from pypayment.enums.status import PaymentStatus
+from pypayment import NotAuthorized, PaymentStatus
 
 
 class Payment(ABC):

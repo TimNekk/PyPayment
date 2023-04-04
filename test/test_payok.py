@@ -1,7 +1,6 @@
 import pytest
 
-from pypayment import PayOkPayment, Payment, AuthorizationError, NotAuthorized
-from pypayment.enums.status import PaymentStatus
+from pypayment import PayOkPayment, Payment, AuthorizationError, NotAuthorized, PaymentStatus
 from test import payok_api_key, payok_api_id, payok_shop_id, payok_shop_secret_key
 
 

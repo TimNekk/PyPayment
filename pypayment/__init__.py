@@ -1,5 +1,6 @@
 from .exceptions import NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError
-from .enums import ChargeCommission, PaymentStatus
+from .enums.commission import ChargeCommission
+from .enums.status import PaymentStatus
 from .payment import Payment
 from .providers.qiwi import QiwiPayment, QiwiPaymentType
 from .providers.yoomoney import YooMoneyPayment, YooMoneyPaymentType
