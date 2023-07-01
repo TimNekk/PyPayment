@@ -1,9 +1,10 @@
 from enum import Enum
-from typing import Optional, Mapping, Any
+from typing import Optional, Mapping, Any, Tuple
 
 import requests
 
-from pypayment import Payment, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission, PaymentStatus
+from pypayment import Payment, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission, \
+    PaymentStatus, PaymentNotFound
 
 
 class YooMoneyPaymentType(Enum):
@@ -94,11 +95,13 @@ class YooMoneyPayment(Payment):
 
         cls._try_authorize()
 
-    def update(self) -> None:
+    @classmethod
+    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         try:
             response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
                                      headers=YooMoneyPayment._get_headers(),
-                                     data={"label": self.id})
+                                     data={"label": payment_id})
+            print(response.json())
         except Exception as e:
             raise PaymentGettingError(e)
 
@@ -108,15 +111,13 @@ class YooMoneyPayment(Payment):
         operations = response.json().get("operations")
 
         if not operations:
-            return
+            raise PaymentNotFound(f"Payment with id {payment_id} not found for {cls.__name__}.")
 
         payment: Mapping[str, Any] = operations[0]
 
         status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
-        if status:
-            self.status = status
-
-        self.income = payment.get("amount")
+        income = payment.get("amount")
+        return status, income
 
     def _create_url(self) -> str:
         data = {
