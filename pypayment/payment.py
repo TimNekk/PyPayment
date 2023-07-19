@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 from uuid import uuid4
 
-from pypayment import NotAuthorized, PaymentStatus
+from pypayment import NotAuthorized, PaymentStatus, PaymentNotFound
 
 
 class Payment(ABC):
@@ -32,13 +32,29 @@ class Payment(ABC):
         self.url: str = self._create_url()
         """Payment URL."""
 
+    @classmethod
+    @abstractmethod
+    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+        """Returns payment status and income.
+
+        :param payment_id: Payment ID.
+        :raises PaymentNotFound: Payment not found.
+        :return: Payment status and income.
+        """
+
+    def update(self) -> None:
+        try:
+            status, income = self.__class__.get_status_and_income(self.id)
+        except PaymentNotFound:
+            return
+
+        if status:
+            self.status = status
+        self.income = income
+
     @abstractmethod
     def _create_url(self) -> str:
         """Creates payment URL."""
-
-    @abstractmethod
-    def update(self) -> None:
-        """Updates payment status and income."""
 
     def _check_authorization(self) -> None:
         """Raises NotAuthorized if class was not authorized."""

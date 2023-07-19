@@ -1,4 +1,4 @@
-from .exceptions import NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError
+from .exceptions import NotAuthorized, PaymentCreationError, PaymentGettingError, AuthorizationError, PaymentNotFound
 from .enums.commission import ChargeCommission
 from .enums.status import PaymentStatus
 from .payment import Payment
