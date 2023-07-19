@@ -1,11 +1,11 @@
 import hashlib
 import urllib.parse
 from enum import Enum
-from typing import Optional, Any, Mapping
+from typing import Optional, Any, Mapping, Tuple
 
 import requests
 
-from pypayment import Payment, PaymentGettingError, AuthorizationError, PaymentStatus
+from pypayment import Payment, PaymentGettingError, AuthorizationError, PaymentStatus, PaymentNotFound
 
 
 class PayOkPaymentType(Enum):
@@ -165,30 +165,31 @@ class PayOkPayment(Payment):
 
         return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
 
-    def update(self) -> None:
+    @classmethod
+    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         data = {
             "API_ID": PayOkPayment._api_id,
             "API_KEY": PayOkPayment._api_key,
             "shop": PayOkPayment._shop_id,
-            "payment": self.id
+            "payment": payment_id
         }
+
         try:
             response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
         except Exception as e:
             raise PaymentGettingError(e)
 
         if response.get("status") != "success":
-            return
+            raise PaymentNotFound(f"Payment with id {payment_id} not found")
 
         payment: Mapping[str, Any] = response.get("1")
 
         transaction_status = payment.get("transaction_status")
+        status = None
         if transaction_status:
             status = PayOkPayment._STATUS_MAP.get(transaction_status)
-            if status:
-                self.status = status
-
-        self.income = float(str(payment.get("amount_profit")))
+        income = float(str(payment.get("amount_profit")))
+        return status, income
 
     @classmethod
     def _try_authorize(cls) -> None:

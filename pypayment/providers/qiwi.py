@@ -1,12 +1,12 @@
 import json
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Mapping, Any
+from typing import Optional, Mapping, Any, Tuple
 
 import requests
 
 from pypayment import Payment, PaymentCreationError, PaymentGettingError, \
-    AuthorizationError, PaymentStatus
+    AuthorizationError, PaymentStatus, PaymentNotFound
 
 
 class QiwiPaymentType(Enum):
@@ -117,9 +117,10 @@ class QiwiPayment(Payment):
 
         return str(response.json().get("payUrl"))
 
-    def update(self) -> None:
+    @classmethod
+    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         try:
-            response = requests.get(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers())
+            response = requests.get(QiwiPayment._API_URL + payment_id, headers=QiwiPayment._get_headers())
         except Exception as e:
             raise PaymentGettingError(e)
 
@@ -127,19 +128,21 @@ class QiwiPayment(Payment):
             raise PaymentGettingError(response.text)
 
         if not response:
-            return
+            raise PaymentNotFound(f"Payment with id {payment_id} not found.")
 
         payment: Mapping[str, Any] = response.json()
 
         status_literal = payment.get("status")
+        status = None
         if status_literal:
             status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
-            if status:
-                self.status = status
 
         amount = payment.get("amount")
+        income = 0
         if amount:
-            self.income = float(amount.get("value"))
+            income = float(amount.get("value"))
+
+        return status, income
 
     @classmethod
     def _get_headers(cls) -> Mapping[str, str]:

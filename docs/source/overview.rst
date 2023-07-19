@@ -76,3 +76,25 @@ Summary.
 
     print("Payment is completed!")
     print(payment.income)  # 90.0
+
+
+Additionally you can get payment's ``status`` and ``income`` using static method ``get_status_and_income()``.
+(You need to know provider's class)
+
+.. code-block:: python
+
+    from pypayment import Payment, QiwiPayment, PaymentNotFound
+
+    QiwiPayment.authorize("my_secret_key")
+
+    payment: Payment = QiwiPayment(amount=100)
+
+    try:
+        status, income = QiwiPayment.get_status_and_income(payment.uid)
+    except PaymentNotFound as e:
+        print(e)
+        return
+
+    if status:
+        print(status)
+    print(income)
