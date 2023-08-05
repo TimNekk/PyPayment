@@ -225,8 +225,9 @@ class BetaTransferPayment(Payment):
             raise PaymentCreationError("You must specify payment_type!")
 
         payment_type_name = f"{self._payment_type.name} ({self._payment_type.value.name})"
-        if self.amount < self._payment_type.value.min_amount or \
-                (self._payment_type.value.max_amount and self.amount > self._payment_type.value.max_amount):
+        if self._amount_with_commission < self._payment_type.value.min_amount or \
+                (self._payment_type.value.max_amount and
+                 self._amount_with_commission > self._payment_type.value.max_amount):
             min_amount = self._payment_type.value.min_amount
             max_amount = self._payment_type.value.max_amount
             currency_name = self._payment_type.value.currency.value
@@ -280,7 +281,7 @@ class BetaTransferPayment(Payment):
         }
 
         data = {
-            "amount": self._sum_with_commission,
+            "amount": self._amount_with_commission,
             "currency": self._payment_type.value.currency.value,
             "orderId": self.id,
             "paymentSystem": self._payment_type.value.name,
@@ -362,7 +363,7 @@ class BetaTransferPayment(Payment):
         return hashlib.md5(sign.encode()).hexdigest()
 
     @property
-    def _sum_with_commission(self) -> float:
+    def _amount_with_commission(self) -> float:
         if self._charge_commission == ChargeCommission.FROM_CUSTOMER and self._payment_type:
             return self.amount + self.amount * self._payment_type.value.commission_in_percent / 100
 
