@@ -363,7 +363,7 @@ class BetaTransferPayment(Payment):
 
     @property
     def _sum_with_commission(self) -> float:
-        if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
+        if self._charge_commission == ChargeCommission.FROM_CUSTOMER and self._payment_type:
             return self.amount + self.amount * self._payment_type.value.commission_in_percent / 100
 
         return self.amount
