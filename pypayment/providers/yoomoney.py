@@ -116,7 +116,7 @@ class YooMoneyPayment(Payment):
         payment: Mapping[str, Any] = operations[0]
 
         status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
-        income = float(str(payment.get("amount")))
+        income = payment.get("amount")
         return status, income
 
     def _create_url(self) -> str:

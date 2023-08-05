@@ -29,8 +29,6 @@ class Payment(ABC):
         self.income: Optional[float] = None
         """Payment income. Use update() to update it."""
 
-        self._validate_params()
-
         self.url: str = self._create_url()
         """Payment URL."""
 
@@ -62,7 +60,3 @@ class Payment(ABC):
         """Raises NotAuthorized if class was not authorized."""
         if not self.authorized:
             raise NotAuthorized(f"You need to authorize first: {self.__class__.__name__}.authorize()")
-
-    def _validate_params(self) -> None:
-        """Validates payment parameters."""
-        pass
