@@ -138,7 +138,7 @@ class QiwiPayment(Payment):
             status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
 
         amount = payment.get("amount")
-        income = 0
+        income = 0.0
         if amount:
             income = float(amount.get("value"))
 
