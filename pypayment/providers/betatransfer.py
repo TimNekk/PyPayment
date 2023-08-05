@@ -6,7 +6,7 @@ from typing import Optional, Tuple, Mapping, Any
 import requests
 
 from pypayment import Payment, PaymentStatus, AuthorizationError, PaymentCreationError, PaymentGettingError, \
-    PaymentNotFound
+    PaymentNotFound, ChargeCommission
 
 
 class BetaTransferCurrency(Enum):
@@ -155,6 +155,7 @@ class BetaTransferPayment(Payment):
     _url_success: Optional[str] = None
     _url_fail: Optional[str] = None
     _locale: Optional[BetaTransferLocale] = None
+    _charge_commission: Optional[ChargeCommission] = None
     _BASE_URL = "https://merchant.betatransfer.io/api"
     _PAYMENT_URL = _BASE_URL + "/payment"
     _INFO_URL = _BASE_URL + "/info"
@@ -184,7 +185,8 @@ class BetaTransferPayment(Payment):
                  url_result: Optional[str] = None,
                  url_success: Optional[str] = None,
                  url_fail: Optional[str] = None,
-                 locale: Optional[BetaTransferLocale] = None) -> None:
+                 locale: Optional[BetaTransferLocale] = None,
+                 charge_commission: Optional[ChargeCommission] = None) -> None:
         """
         You need to BetaTransferPayment.authorize() first!
 
@@ -200,6 +202,7 @@ class BetaTransferPayment(Payment):
         :param url_success: User will be redirected to this url after paying successfully.
         :param url_fail: User will be redirected to this url after paying unsuccessfully.
         :param locale: BetaTransferLocale enum.
+        :param charge_commission: ChargeCommission enum.
 
         :raises NotAuthorizedError: When class was not authorized with BetaTransferPayment.authorize()
         :raises PaymentCreationError: When payment creation failed.
@@ -209,6 +212,8 @@ class BetaTransferPayment(Payment):
         self._url_success = BetaTransferPayment._url_success if url_success is None else url_success
         self._url_fail = BetaTransferPayment._url_fail if url_fail is None else url_fail
         self._locale = BetaTransferPayment._locale if locale is None else locale
+        self._charge_commission = BetaTransferPayment._charge_commission if charge_commission is None \
+            else charge_commission
 
         super().__init__(amount, description, id)
 
@@ -236,7 +241,8 @@ class BetaTransferPayment(Payment):
                   url_result: Optional[str] = None,
                   url_success: Optional[str] = None,
                   url_fail: Optional[str] = None,
-                  locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN) -> None:
+                  locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN,
+                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER) -> None:
         """
         Must be called before the first use of the class!
 
@@ -250,6 +256,7 @@ class BetaTransferPayment(Payment):
         :param url_success: User will be redirected to this url after paying successfully.
         :param url_fail: User will be redirected to this url after paying unsuccessfully.
         :param locale: BetaTransferLocale enum.
+        :param charge_commission: ChargeCommission enum.
 
         :raises AuthorizationError: When authorization fails.
         """
@@ -260,6 +267,7 @@ class BetaTransferPayment(Payment):
         BetaTransferPayment._url_success = url_success
         BetaTransferPayment._url_fail = url_fail
         BetaTransferPayment._locale = locale
+        BetaTransferPayment._charge_commission = charge_commission
 
         cls._try_authorize()
 
@@ -272,7 +280,7 @@ class BetaTransferPayment(Payment):
         }
 
         data = {
-            "amount": self.amount,
+            "amount": self._sum_with_commission,
             "currency": self._payment_type.value.currency.value,
             "orderId": self.id,
             "paymentSystem": self._payment_type.value.name,
@@ -352,3 +360,10 @@ class BetaTransferPayment(Payment):
     def _get_sign(cls, data: Mapping[str, str]) -> str:
         sign = "".join(str(value) for value in data.values()) + str(BetaTransferPayment._private_key)
         return hashlib.md5(sign.encode()).hexdigest()
+
+    @property
+    def _sum_with_commission(self) -> float:
+        if self._charge_commission == ChargeCommission.FROM_CUSTOMER and self._payment_type:
+            return self.amount + self.amount * self._payment_type.value.commission_in_percent / 100
+
+        return self.amount

@@ -261,6 +261,7 @@ Settings arguments:
 - ``url_success`` - User will be redirected to this url after paying.
 - ``url_fail`` - User will be redirected to this url if payment failed.
 - ``locale`` - `BetaTransferLocale`_ enum.
+- ``charge_commission`` - :ref:`ChargeCommission` enum.
 
 .. note ::
 
@@ -277,7 +278,8 @@ Settings arguments:
                            url_result="my_result_url.com",
                            url_success="my_success_url.com",
                            url_fail="my_fail_url.com",
-                           locale=BetaTransferLocale.RUSSIAN)
+                           locale=BetaTransferLocale.RUSSIAN,
+                           charge_commission=ChargeCommission.FROM_SELLER)
 
     # Override setting for specific payment
     payment = BetaTransferPayment(amount=100,
@@ -286,7 +288,8 @@ Settings arguments:
                             url_result="override_result_url.com",
                             url_success="override_success_url.com",
                             url_fail="override_fail_url.com",
-                            locale=BetaTransferLocale.ENGLISH)
+                            locale=BetaTransferLocale.ENGLISH,
+                            charge_commission=ChargeCommission.FROM_CUSTOMER)
 
 .. warning::
 
