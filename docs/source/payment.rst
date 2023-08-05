@@ -234,3 +234,119 @@ Enum for ``currency`` setting argument:
 - ``USD`` - United States dollar.
 - ``EUR`` - Euro.
 - ``RUB2`` - Russian ruble. *(Alternative Gateway)*
+
+.. _BetaTransfer:
+
+BetaTransfer
+=====
+
+BetaTransferPayment
+************
+
+BetaTransfer payment provider class is ``BetaTransferPayment``.
+
+Arguments for authorization:
+
+- ``public_key`` - BetaTransfer `Public API Key <https://merchant.betatransfer.io/setting-api>`_
+- ``private_key`` - BetaTransfer `Secret API Key <https://merchant.betatransfer.io/setting-api>`_
+
+.. warning::
+
+    **account-info**, **payment** and **info** methods are required for ``API keys``
+
+Settings arguments:
+
+- ``payment_type`` - `BetaTransferPaymentType`_ enum.
+- ``url_result`` - Callback URL.
+- ``url_success`` - User will be redirected to this url after paying.
+- ``url_fail`` - User will be redirected to this url if payment failed.
+- ``locale`` - `BetaTransferLocale`_ enum.
+
+.. note ::
+
+    You can set default setting for every payment of ``BetaTransferPayment`` and override them for specific payment.
+
+.. code-block:: python
+
+    from pypayment import BetaTransferPayment, BetaTransferPaymentType, BetaTransferCurrency, BetaTransferGateway, BetaTransferLocale
+    from datetime import timedelta
+
+    # Set default setting
+    BetaTransferPayment.authorize("my_api_key", "my_api_id", "my_shop_id", "my_shop_secret_key",
+                           payment_type=BetaTransferPaymentType.RUB_CARD,
+                           url_result="my_result_url.com",
+                           url_success="my_success_url.com",
+                           url_fail="my_fail_url.com",
+                           locale=BetaTransferLocale.RUSSIAN)
+
+    # Override setting for specific payment
+    payment = BetaTransferPayment(amount=100,
+                            description="My payment",
+                            payment_type=BetaTransferPaymentType.BTC,
+                            url_result="override_result_url.com",
+                            url_success="override_success_url.com",
+                            url_fail="override_fail_url.com",
+                            locale=BetaTransferLocale.ENGLISH)
+
+.. warning::
+
+    There are **minimum** and **maximum** amount for every payment type. You can get them from `BetaTransferGateway`_.
+    Like this: ``BetaTransferPaymentType.RUB_CARD.value.min_amount`` and ``BetaTransferPaymentType.RUB_CARD.value.max_amount``
+
+
+.. warning::
+
+    **url_success** and **url_fail** must be specified either in default or payment init params.
+
+
+BetaTransferPaymentType
+****************
+
+Enum for ``payment_type`` setting argument (It contains `BetaTransferGateway`_):
+
+- ``USDT_TRC20`` - Payment with USDT TRC20.
+- ``USDT_ERC20`` - Payment with USDT ERC20.
+- ``ETH`` - Payment with Ethereum.
+- ``BTC`` - Payment with Bitcoin.
+- ``KZT_CARD`` - Payment with Kazakhstani tenge.
+- ``UZS_CARD`` - Payment with Uzbekistan sum.
+- ``RUB_SBP`` - Payment with Russian ruble using SBP.
+- ``RUB_P2R`` - Payment with Russian ruble using P2R.
+- ``RUB_CARD`` - Payment with Russian ruble using card.
+- ``YOOMONEY`` - Payment with YooMoney.
+- ``QIWI`` - Payment with QIWI.
+- ``UAH_CARD`` - Payment with Ukrainian hryvnia.
+
+
+BetaTransferGateway
+*************
+
+Dataclass that is used in `BetaTransferPaymentType`_ enum.
+
+- ``name`` - Gateway name in BetaTransfer.
+- ``currency`` - `BetaTransferCurrency`_ enum.
+- ``min_amount`` - Minimum payment amount.
+- ``max_amount`` - Maximum payment amount.
+- ``commission`` - Commission for payment in percent.
+
+
+BetaTransferCurrency
+*************
+
+Enum for ``currency`` setting argument:
+
+- ``RUB`` - Russian ruble.
+- ``UAH`` - Ukrainian hryvnia.
+- ``USD`` - United States dollar.
+- ``KZT`` - Kazakhstani tenge.
+- ``UZS`` - Uzbekistan sum.
+
+
+BetaTransferLocale
+*************
+
+Enum for ``locale`` setting argument:
+
+- ``RUSSIAN`` - Russian language.
+- ``ENGLISH`` - English language.
+- ``UKRAINIAN`` - Ukrainian language.
