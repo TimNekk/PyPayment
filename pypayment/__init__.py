@@ -6,5 +6,3 @@ from .providers.qiwi import QiwiPayment, QiwiPaymentType
 from .providers.yoomoney import YooMoneyPayment, YooMoneyPaymentType
 from .providers.payok import PayOkPayment, PayOkPaymentType, PayOkCurrency
 from .providers.lava import LavaPayment
-from .providers.betatransfer import BetaTransferPayment, BetaTransferPaymentType, BetaTransferCurrency, \
-    BetaTransferGateway, BetaTransferLocale
