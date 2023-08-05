@@ -35,6 +35,7 @@ For more details see [documentation](https://pypayment.readthedocs.io).
 - [Qiwi P2P](https://p2p.qiwi.com/)
 - [YooMoney](https://yoomoney.ru/)
 - [PayOk](https://payok.io/)
+- [BetaTransfer](https://betatransfer.io/)
 - [Lava](https://lava.kz/) *(under development)*
 ## Installation
 

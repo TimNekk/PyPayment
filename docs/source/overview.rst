@@ -15,6 +15,7 @@ Supported providers:
 - :ref:`Qiwi`
 - :ref:`YooMoney`
 - :ref:`PayOk`
+- :ref:`BetaTransfer`
 - **Lava** *(under development)*
 
 Quickstart
