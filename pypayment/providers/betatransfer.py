@@ -104,7 +104,7 @@ class BetaTransferPaymentType(Enum):
         name="YooMoney",
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=14,
-        min_amount=300,
+        min_amount=100,
         max_amount=50000
     )
     """YooMoney payment type."""
@@ -116,14 +116,14 @@ class BetaTransferPaymentType(Enum):
         max_amount=50000
     )
     """Qiwi payment type."""
-    RUB_CARD = BetaTransferGateway(
-        name="Card",
-        currency=BetaTransferCurrency.RUB,
-        commission_in_percent=14,
-        min_amount=100,
-        max_amount=75000
-    )
-    """RUB card payment type."""
+    # RUB_CARD = BetaTransferGateway(
+    #     name="Card",
+    #     currency=BetaTransferCurrency.RUB,
+    #     commission_in_percent=14,
+    #     min_amount=100,
+    #     max_amount=75000
+    # )
+    # """RUB card payment type."""
     UAH_CARD = BetaTransferGateway(
         name="Card1",
         currency=BetaTransferCurrency.UAH,
