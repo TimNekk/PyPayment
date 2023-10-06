@@ -96,7 +96,7 @@ class BetaTransferPaymentType(Enum):
         name="P2R",
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=14,
-        min_amount=300,
+        min_amount=100,
         max_amount=50000
     )
     """RUB P2R payment type."""
