@@ -238,7 +238,7 @@ class BetaTransferPayment(Payment):
     def authorize(cls,
                   public_key: str,
                   private_key: str,
-                  payment_type: BetaTransferPaymentType = BetaTransferPaymentType.RUB_CARD,
+                  payment_type: BetaTransferPaymentType = BetaTransferPaymentType.RUB_P2R,
                   url_result: Optional[str] = None,
                   url_success: Optional[str] = None,
                   url_fail: Optional[str] = None,
