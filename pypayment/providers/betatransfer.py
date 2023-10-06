@@ -84,14 +84,6 @@ class BetaTransferPaymentType(Enum):
         max_amount=None
     )
     """UZS payment type."""
-    RUB_SBP = BetaTransferGateway(
-        name="Card4",
-        currency=BetaTransferCurrency.RUB,
-        commission_in_percent=13,
-        min_amount=100,
-        max_amount=10000
-    )
-    """SBP payment type."""
     RUB_P2R = BetaTransferGateway(
         name="P2R",
         currency=BetaTransferCurrency.RUB,
@@ -100,6 +92,14 @@ class BetaTransferPaymentType(Enum):
         max_amount=50000
     )
     """RUB P2R payment type."""
+    RUB_SBP = BetaTransferGateway(
+        name="Card4",
+        currency=BetaTransferCurrency.RUB,
+        commission_in_percent=13,
+        min_amount=100,
+        max_amount=10000
+    )
+    """SBP payment type."""
     YOOMONEY = BetaTransferGateway(
         name="YooMoney",
         currency=BetaTransferCurrency.RUB,
