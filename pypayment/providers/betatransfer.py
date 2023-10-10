@@ -111,11 +111,19 @@ class BetaTransferPaymentType(Enum):
     QIWI = BetaTransferGateway(
         name="Qiwi",
         currency=BetaTransferCurrency.RUB,
-        commission_in_percent=14,
-        min_amount=100,
+        commission_in_percent=12,
+        min_amount=300,
         max_amount=50000
     )
     """Qiwi payment type."""
+    QIWI_CARD = BetaTransferGateway(
+        name="Qiwi2",
+        currency=BetaTransferCurrency.RUB,
+        commission_in_percent=12,
+        min_amount=100,
+        max_amount=50000
+    )
+    """Qiwi Card payment type."""
     # RUB_CARD = BetaTransferGateway(
     #     name="Card",
     #     currency=BetaTransferCurrency.RUB,
@@ -186,7 +194,8 @@ class BetaTransferPayment(Payment):
                  url_success: Optional[str] = None,
                  url_fail: Optional[str] = None,
                  locale: Optional[BetaTransferLocale] = None,
-                 charge_commission: Optional[ChargeCommission] = None) -> None:
+                 charge_commission: Optional[ChargeCommission] = None,
+                 payer_id: Optional[str] = None) -> None:
         """
         You need to BetaTransferPayment.authorize() first!
 
@@ -214,6 +223,7 @@ class BetaTransferPayment(Payment):
         self._locale = BetaTransferPayment._locale if locale is None else locale
         self._charge_commission = BetaTransferPayment._charge_commission if charge_commission is None \
             else charge_commission
+        self.payer_id = payer_id
 
         super().__init__(amount, description, id)
 
@@ -233,6 +243,9 @@ class BetaTransferPayment(Payment):
             currency_name = self._payment_type.value.currency.value
             raise PaymentCreationError(f"Amount for {payment_type_name} must be between "
                                        f"{min_amount} and {max_amount} {currency_name}!")
+
+        if self._payment_type == BetaTransferPaymentType.QIWI_CARD and not self.payer_id:
+            raise PaymentCreationError("You should specify payer_id for Qiwi Card (Qiwi2)")
 
     @classmethod
     def authorize(cls,
@@ -289,7 +302,8 @@ class BetaTransferPayment(Payment):
             "urlSuccess": self._url_success,
             "urlFail": self._url_fail,
             "locale": self._locale.value,
-            "fullCallback": 1
+            "fullCallback": 1,
+            "payerId": self.payer_id
         }
 
         try:
