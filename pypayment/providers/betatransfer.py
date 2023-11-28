@@ -22,6 +22,8 @@ class BetaTransferCurrency(Enum):
     """Kazakhstani tenge."""
     UZS = "UZS"
     """Uzbekistani soʻm."""
+    BYN = "BYN"
+    """Belarusian ruble."""
 
 
 @dataclass
@@ -68,6 +70,14 @@ class BetaTransferPaymentType(Enum):
         max_amount=500
     )
     """Bitcoin payment type."""
+    CRYPTO = BetaTransferGateway(
+        name="CRYPTO",
+        currency=BetaTransferCurrency.USD,
+        commission_in_percent=2,
+        min_amount=5,
+        max_amount=5000
+    )
+    """Crypto payment type."""
     KZT_CARD = BetaTransferGateway(
         name="P2R_KZT",
         currency=BetaTransferCurrency.USD,
@@ -124,13 +134,13 @@ class BetaTransferPaymentType(Enum):
         max_amount=50000
     )
     """Qiwi Card payment type."""
-    # RUB_CARD = BetaTransferGateway(
-    #     name="Card",
-    #     currency=BetaTransferCurrency.RUB,
-    #     commission_in_percent=14,
-    #     min_amount=100,
-    #     max_amount=75000
-    # )
+    RUB_CARD = BetaTransferGateway(
+        name="Card",
+        currency=BetaTransferCurrency.RUB,
+        commission_in_percent=12,
+        min_amount=10,
+        max_amount=75000
+    )
     # """RUB card payment type."""
     UAH_CARD = BetaTransferGateway(
         name="Card1",
@@ -140,6 +150,23 @@ class BetaTransferPaymentType(Enum):
         max_amount=10000
     )
     """UAH card payment type."""
+    BYN_CARD = BetaTransferGateway(
+        name="Card2",
+        currency=BetaTransferCurrency.BYN,
+        commission_in_percent=12,
+        min_amount=50,
+        max_amount=10000
+    )
+    """BYN card payment type."""
+    BYN_CARD2 = BetaTransferGateway(
+        name="Card3",
+        currency=BetaTransferCurrency.BYN,
+        commission_in_percent=12,
+        min_amount=25,
+        max_amount=5000
+    )
+    """BYN card payment type."""
+
 
 
 class BetaTransferLocale(Enum):
