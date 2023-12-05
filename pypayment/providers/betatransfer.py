@@ -154,7 +154,7 @@ class BetaTransferPaymentType(Enum):
         name="Card2",
         currency=BetaTransferCurrency.BYN,
         commission_in_percent=12,
-        min_amount=50,
+        min_amount=30,
         max_amount=10000
     )
     """BYN card payment type."""
@@ -162,7 +162,7 @@ class BetaTransferPaymentType(Enum):
         name="Card3",
         currency=BetaTransferCurrency.BYN,
         commission_in_percent=12,
-        min_amount=25,
+        min_amount=30,
         max_amount=5000
     )
     """BYN card payment type."""
