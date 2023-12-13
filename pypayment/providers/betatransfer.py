@@ -31,7 +31,7 @@ class BetaTransferGateway:
     name: str
     currency: BetaTransferCurrency
     commission_in_percent: float
-    min_amount: float
+    min_amount: Optional[float]
     max_amount: Optional[float]
 
 
@@ -78,12 +78,20 @@ class BetaTransferPaymentType(Enum):
         max_amount=5000
     )
     """Crypto payment type."""
-    KZT_CARD = BetaTransferGateway(
+    KZT_CARD_USD = BetaTransferGateway(
         name="P2R_KZT",
         currency=BetaTransferCurrency.USD,
         commission_in_percent=12,
         min_amount=12,
         max_amount=1000
+    )
+    """P2R KZT payment type."""
+    KZT_CARD = BetaTransferGateway(
+        name="P2R_KZT",
+        currency=BetaTransferCurrency.KZT,
+        commission_in_percent=12,
+        min_amount=None,
+        max_amount=None
     )
     """P2R KZT payment type."""
     UZS_CARD = BetaTransferGateway(
@@ -261,12 +269,14 @@ class BetaTransferPayment(Payment):
         if not self._payment_type:
             raise PaymentCreationError("You must specify payment_type!")
 
-        payment_type_name = f"{self._payment_type.name} ({self._payment_type.value.name})"
-        if self._amount_with_commission < self._payment_type.value.min_amount or \
-                (self._payment_type.value.max_amount and
-                 self._amount_with_commission > self._payment_type.value.max_amount):
-            min_amount = self._payment_type.value.min_amount
-            max_amount = self._payment_type.value.max_amount
+        min_amount = self._payment_type.value.min_amount
+        max_amount = self._payment_type.value.max_amount
+
+        invalid_min_amount = min_amount and self._amount_with_commission < min_amount
+        invalid_max_amount = max_amount and self._amount_with_commission > max_amount
+
+        if invalid_min_amount or invalid_max_amount:
+            payment_type_name = f"{self._payment_type.name} ({self._payment_type.value.name})"
             currency_name = self._payment_type.value.currency.value
             raise PaymentCreationError(f"Amount for {payment_type_name} must be between "
                                        f"{min_amount} and {max_amount} {currency_name}!")
