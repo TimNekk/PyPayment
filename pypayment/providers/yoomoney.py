@@ -169,11 +169,11 @@ class YooMoneyPayment(Payment):
         if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
             if self._payment_type == YooMoneyPaymentType.WALLET:
                 commission_multiplier = 0.01
-                return self.amount * (1 + commission_multiplier)
+                return round(self.amount * (1 + commission_multiplier), 2)
 
             if self._payment_type == YooMoneyPaymentType.CARD:
                 commission_multiplier = 0.03
-                return self.amount / (1 - commission_multiplier)
+                return round(self.amount / (1 - commission_multiplier), 2)
 
         return self.amount
 

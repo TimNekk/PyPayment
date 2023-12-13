@@ -17,7 +17,7 @@ class Payment(ABC):
         self.id: str = id if id is not None else str(uuid4())
         """Unique Payment ID (default: generated with uuid4)."""
 
-        self.amount: float = amount
+        self.amount: float = round(amount, 2)
         """Amount to be invoiced. May not include commission."""
 
         self.description: str = description if description else str(self.id)

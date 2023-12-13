@@ -95,7 +95,7 @@ class QiwiPayment(Payment):
         data = {
             "amount": {
                 "currency": "RUB",
-                "value": round(self.amount, 2)
+                "value": self.amount
             },
             "comment": self.description,
             "expirationDateTime": (
