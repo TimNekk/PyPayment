@@ -153,7 +153,7 @@ class BetaTransferPaymentType(Enum):
     UAH_CARD = BetaTransferGateway(
         name="Card1",
         currency=BetaTransferCurrency.UAH,
-        commission_in_percent=10,
+        commission_in_percent=9.5,
         min_amount=350,
         max_amount=10000
     )
