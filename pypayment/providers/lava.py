@@ -97,7 +97,7 @@ class LavaPayment(Payment):
     def _create_url(self) -> str:
         data = {
             "wallet_to": self._wallet_to,
-            "sum": round(self.amount, 2),
+            "sum": self.amount,
             "order_id": self.id,
             "success_url": self._success_url,
             "fail_url": self._fail_url,
