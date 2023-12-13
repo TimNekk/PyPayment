@@ -138,7 +138,7 @@ class BetaTransferPaymentType(Enum):
         name="Qiwi",
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=12,
-        min_amount=100,
+        min_amount=500,
         max_amount=50000
     )
     """Qiwi payment type."""
@@ -146,7 +146,7 @@ class BetaTransferPaymentType(Enum):
         name="Qiwi2",
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=12,
-        min_amount=500,
+        min_amount=100,
         max_amount=50000
     )
     # """RUB card payment type."""
