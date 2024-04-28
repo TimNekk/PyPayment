@@ -13,6 +13,8 @@ class PayOkPaymentType(Enum):
 
     CARD = "cd"
     """Payment with bank card."""
+    SBP = "sbp"
+    """Payment with SBP."""
     QIWI = "qw"
     """Payment with QIWI."""
     YOOMONEY = "ym"
