@@ -176,7 +176,6 @@ class BetaTransferPaymentType(Enum):
     """BYN card payment type."""
 
 
-
 class BetaTransferLocale(Enum):
     """BeteTransfer payment form language enum."""
 
@@ -199,6 +198,7 @@ class BetaTransferPayment(Payment):
     _url_fail: Optional[str] = None
     _locale: Optional[BetaTransferLocale] = None
     _charge_commission: Optional[ChargeCommission] = None
+    _do_params_validation: bool = True
     _BASE_URL = "https://merchant.betatransfer.io/api"
     _PAYMENT_URL = _BASE_URL + "/payment"
     _INFO_URL = _BASE_URL + "/info"
@@ -230,6 +230,7 @@ class BetaTransferPayment(Payment):
                  url_fail: Optional[str] = None,
                  locale: Optional[BetaTransferLocale] = None,
                  charge_commission: Optional[ChargeCommission] = None,
+                 validate_params: bool = True,
                  payer_id: Optional[str] = None) -> None:
         """
         You need to BetaTransferPayment.authorize() first!
@@ -247,6 +248,8 @@ class BetaTransferPayment(Payment):
         :param url_fail: User will be redirected to this url after paying unsuccessfully.
         :param locale: BetaTransferLocale enum.
         :param charge_commission: ChargeCommission enum.
+        :param validate_params: Validate passed parameters.
+        :param payer_id: Payer ID.
 
         :raises NotAuthorizedError: When class was not authorized with BetaTransferPayment.authorize()
         :raises PaymentCreationError: When payment creation failed.
@@ -258,11 +261,16 @@ class BetaTransferPayment(Payment):
         self._locale = BetaTransferPayment._locale if locale is None else locale
         self._charge_commission = BetaTransferPayment._charge_commission if charge_commission is None \
             else charge_commission
+        self._do_params_validation = BetaTransferPayment._do_params_validation if validate_params is None \
+            else validate_params
         self.payer_id = payer_id
 
         super().__init__(amount, description, id)
 
     def _validate_params(self):
+        if not BetaTransferPayment._do_params_validation:
+            return
+
         if not self._url_success or not self._url_fail:
             raise PaymentCreationError("You must specify url_success and url_fail!")
 
@@ -293,7 +301,8 @@ class BetaTransferPayment(Payment):
                   url_success: Optional[str] = None,
                   url_fail: Optional[str] = None,
                   locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN,
-                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER) -> None:
+                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
+                  do_params_validation: bool = True) -> None:
         """
         Must be called before the first use of the class!
 
@@ -308,6 +317,7 @@ class BetaTransferPayment(Payment):
         :param url_fail: User will be redirected to this url after paying unsuccessfully.
         :param locale: BetaTransferLocale enum.
         :param charge_commission: ChargeCommission enum.
+        :param do_params_validation: Validate passed parameters.
 
         :raises AuthorizationError: When authorization fails.
         """
@@ -319,6 +329,7 @@ class BetaTransferPayment(Payment):
         BetaTransferPayment._url_fail = url_fail
         BetaTransferPayment._locale = locale
         BetaTransferPayment._charge_commission = charge_commission
+        BetaTransferPayment._do_params_validation = do_params_validation
 
         cls._try_authorize()
 
