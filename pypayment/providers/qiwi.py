@@ -1,12 +1,19 @@
 import json
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Mapping, Any, Tuple
+from typing import Any, Mapping, Optional, Tuple
 
 import requests
+from requests import RequestException
 
-from pypayment import Payment, PaymentCreationError, PaymentGettingError, \
-    AuthorizationError, PaymentStatus, PaymentNotFound
+from pypayment import (
+    AuthorizationError,
+    Payment,
+    PaymentCreationError,
+    PaymentGettingError,
+    PaymentNotFound,
+    PaymentStatus,
+)
 
 
 class QiwiPaymentType(Enum):
@@ -32,17 +39,20 @@ class QiwiPayment(Payment):
         "WAITING": PaymentStatus.WAITING,
         "PAID": PaymentStatus.PAID,
         "REJECTED": PaymentStatus.REJECTED,
-        "EXPIRED": PaymentStatus.EXPIRED
+        "EXPIRED": PaymentStatus.EXPIRED,
     }
 
-    def __init__(self,
-                 amount: float,
-                 description: str = "",
-                 id: Optional[str] = None,
-                 theme_code: Optional[str] = None,
-                 expiration_duration: Optional[timedelta] = None,
-                 payment_type: Optional[QiwiPaymentType] = None):
-        """
+    def __init__(
+        self,
+        amount: float,
+        description: str = "",
+        id: Optional[str] = None,
+        theme_code: Optional[str] = None,
+        expiration_duration: Optional[timedelta] = None,
+        payment_type: Optional[QiwiPaymentType] = None,
+    ) -> None:
+        """Authorize QiwiPayment class.
+
         You need to QiwiPayment.authorize() first!
 
         Instantiation generates new QIWI invoice instance right away.
@@ -59,19 +69,22 @@ class QiwiPayment(Payment):
         :raise NotAuthorized: When class was not authorized with QiwiPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        self._theme_code = QiwiPayment._theme_code if theme_code is None else theme_code
-        self._expiration_duration = QiwiPayment._expiration_duration if expiration_duration is None else expiration_duration
-        self._payment_type = QiwiPayment._payment_type if payment_type is None else payment_type
+        self._theme_code = theme_code or self._theme_code
+        self._expiration_duration = expiration_duration or self._expiration_duration
+        self._payment_type = payment_type or self._payment_type
 
         super().__init__(amount, description, id)
 
     @classmethod
-    def authorize(cls,
-                  secret_key: str,
-                  theme_code: Optional[str] = None,
-                  expiration_duration: timedelta = timedelta(hours=1),
-                  payment_type: QiwiPaymentType = QiwiPaymentType.ALL) -> None:
-        """
+    def authorize(
+        cls,
+        secret_key: str,
+        theme_code: Optional[str] = None,
+        expiration_duration: timedelta = timedelta(hours=1),
+        payment_type: QiwiPaymentType = QiwiPaymentType.ALL,
+    ) -> None:
+        """Authorize QiwiPayment class.
+
         Must be called before the first use of the class!
 
         Tries to authorize to Qiwi p2p API.
@@ -84,10 +97,10 @@ class QiwiPayment(Payment):
 
         :raise AuthorizationError: When authorization fails.
         """
-        QiwiPayment._secret_key = secret_key
-        QiwiPayment._theme_code = theme_code
-        QiwiPayment._expiration_duration = expiration_duration
-        QiwiPayment._payment_type = payment_type
+        cls._secret_key = secret_key
+        cls._theme_code = theme_code
+        cls._expiration_duration = expiration_duration
+        cls._payment_type = payment_type
 
         cls._try_authorize()
 
@@ -95,24 +108,29 @@ class QiwiPayment(Payment):
         data = {
             "amount": {
                 "currency": "RUB",
-                "value": self.amount
+                "value": self.amount,
             },
             "comment": self.description,
             "expirationDateTime": (
-                        datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration).isoformat() if self._expiration_duration else None,
+                datetime.now().replace(microsecond=0).astimezone() + self._expiration_duration
+            ).isoformat() if self._expiration_duration else None,
             "customFields": {
                 "themeCode": self._theme_code,
-                "paySourcesFilter": self._payment_type.value if self._payment_type else None
-            }
+                "paySourcesFilter": self._payment_type.value if self._payment_type else None,
+            },
         }
 
         try:
-            response = requests.put(QiwiPayment._API_URL + self.id, headers=QiwiPayment._get_headers(),
-                                    data=json.dumps(data))
-        except Exception as e:
-            raise PaymentCreationError(e)
+            response = requests.put(
+                self._API_URL + self.id,
+                headers=self._get_headers(),
+                data=json.dumps(data),
+                timeout=10,
+            )
+        except RequestException as e:
+            raise PaymentCreationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentCreationError(response.text)
 
         return str(response.json().get("payUrl"))
@@ -120,11 +138,15 @@ class QiwiPayment(Payment):
     @classmethod
     def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         try:
-            response = requests.get(QiwiPayment._API_URL + payment_id, headers=QiwiPayment._get_headers())
-        except Exception as e:
-            raise PaymentGettingError(e)
+            response = requests.get(
+                cls._API_URL + payment_id,
+                headers=cls._get_headers(),
+                timeout=10,
+            )
+        except RequestException as e:
+            raise PaymentGettingError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentGettingError(response.text)
 
         if not response:
@@ -135,7 +157,7 @@ class QiwiPayment(Payment):
         status_literal = payment.get("status")
         status = None
         if status_literal:
-            status = QiwiPayment._STATUS_MAP.get(status_literal.get("value"))
+            status = cls._STATUS_MAP.get(status_literal.get("value"))
 
         amount = payment.get("amount")
         income = 0.0
@@ -149,17 +171,21 @@ class QiwiPayment(Payment):
         return {
             "Authorization": f"Bearer {cls._secret_key}",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
 
     @classmethod
     def _try_authorize(cls) -> None:
         try:
-            response = requests.get(QiwiPayment._API_URL, headers=QiwiPayment._get_headers())
-        except Exception as e:
-            raise AuthorizationError(e)
+            response = requests.get(
+                cls._API_URL,
+                headers=cls._get_headers(),
+                timeout=10,
+            )
+        except RequestException as e:
+            raise AuthorizationError() from e
 
-        if response.status_code == 401:
+        if response.status_code == requests.codes.unauthorized:
             raise AuthorizationError("Secret key is invalid.")
 
         cls.authorized = True

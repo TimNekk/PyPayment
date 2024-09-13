@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Tuple
 from uuid import uuid4
 
-from pypayment import NotAuthorized, PaymentStatus, PaymentNotFound
+from pypayment import NotAuthorized, PaymentNotFound, PaymentStatus
 
 
 class Payment(ABC):
@@ -12,9 +12,10 @@ class Payment(ABC):
     """Is payment class authorized."""
 
     def __init__(self, amount: float, description: str = "", id: Optional[str] = None) -> None:
+        """Initialize Payment class."""
         self._check_authorization()
 
-        self.id: str = id if id is not None else str(uuid4())
+        self.id: str = id or str(uuid4())
         """Unique Payment ID (default: generated with uuid4)."""
 
         self.amount: float = round(amount, 2)
@@ -37,7 +38,7 @@ class Payment(ABC):
     @classmethod
     @abstractmethod
     def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
-        """Returns payment status and income.
+        """Return payment status and income.
 
         :param payment_id: Payment ID.
         :raises PaymentNotFound: Payment not found.
@@ -56,13 +57,12 @@ class Payment(ABC):
 
     @abstractmethod
     def _create_url(self) -> str:
-        """Creates payment URL."""
+        """Create payment URL."""
 
     def _check_authorization(self) -> None:
-        """Raises NotAuthorized if class was not authorized."""
+        """Raise NotAuthorized if class was not authorized."""
         if not self.authorized:
             raise NotAuthorized(f"You need to authorize first: {self.__class__.__name__}.authorize()")
 
     def _validate_params(self) -> None:
-        """Validates payment parameters."""
-        pass
+        """Validate payment parameters."""
