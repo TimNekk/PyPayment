@@ -1,11 +1,12 @@
 import hashlib
 import urllib.parse
 from enum import Enum
-from typing import Optional, Any, Mapping, Tuple
+from typing import Any, Mapping, Optional, Tuple
 
 import requests
+from requests import RequestException
 
-from pypayment import Payment, PaymentGettingError, AuthorizationError, PaymentStatus, PaymentNotFound
+from pypayment import AuthorizationError, Payment, PaymentGettingError, PaymentNotFound, PaymentStatus
 
 
 class PayOkPaymentType(Enum):
@@ -46,7 +47,7 @@ class PayOkPaymentType(Enum):
     DASH = "ds"
     """Payment with Dash."""
     ZCASH = "zc"
-    """Payment with ZСash."""
+    """Payment with ZCash."""
 
 
 class PayOkCurrency(Enum):
@@ -81,17 +82,20 @@ class PayOkPayment(Payment):
     _BALANCE_URL = _API_URL + "/balance"
     _STATUS_MAP = {
         "0": PaymentStatus.WAITING,
-        "1": PaymentStatus.PAID
+        "1": PaymentStatus.PAID,
     }
 
-    def __init__(self,
-                 amount: float,
-                 description: str = "",
-                 id: Optional[str] = None,
-                 payment_type: Optional[PayOkPaymentType] = None,
-                 currency: Optional[PayOkCurrency] = None,
-                 success_url: Optional[str] = None):
-        """
+    def __init__(
+        self,
+        amount: float,
+        description: str = "",
+        id: Optional[str] = None,
+        payment_type: Optional[PayOkPaymentType] = None,
+        currency: Optional[PayOkCurrency] = None,
+        success_url: Optional[str] = None,
+    ) -> None:
+        """Authorize PayOkPayment class.
+
         You need to PayOkPayment.authorize() first!
 
         Instantiation generates new PayOk invoice instance right away.
@@ -108,28 +112,31 @@ class PayOkPayment(Payment):
         :raise NotAuthorized: When class was not authorized with PayOkPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        self._payment_type = PayOkPayment._payment_type if payment_type is None else payment_type
-        self._currency = PayOkPayment._currency if currency is None else currency
-        self._success_url = PayOkPayment._success_url if success_url is None else success_url
+        self._payment_type = payment_type or self._payment_type
+        self._currency = currency or self._currency
+        self._success_url = success_url or self._success_url
 
         super().__init__(amount, description, id)
 
     @classmethod
-    def authorize(cls,
-                  api_key: str,
-                  api_id: int,
-                  shop_id: int,
-                  shop_secret_key: str,
-                  payment_type: PayOkPaymentType = PayOkPaymentType.CARD,
-                  currency: PayOkCurrency = PayOkCurrency.RUB,
-                  success_url: Optional[str] = None) -> None:
-        """
+    def authorize(
+        cls,
+        api_key: str,
+        api_id: int,
+        shop_id: int,
+        shop_secret_key: str,
+        payment_type: PayOkPaymentType = PayOkPaymentType.CARD,
+        currency: PayOkCurrency = PayOkCurrency.RUB,
+        success_url: Optional[str] = None,
+    ) -> None:
+        """Authorize PayOkPayment class.
+
         Must be called before the first use of the class!
 
         Tries to authorize to PayOk API.
         Saves passed parameters as default.
 
-        :param api_key: API key from https://payok.io/cabinet/api.php (`Balance` and `Transactions` permissions required)
+        :param api_key: API key from https://payok.io/cabinet/api.php (`Balance` and `Transactions` permission required)
         :param api_id: ID of API key from https://payok.io/cabinet/api.php
         :param shop_id: ID of shop from https://payok.io/cabinet/main.php
         :param shop_secret_key: Secret key of shop from https://payok.io/cabinet/main.php
@@ -139,13 +146,13 @@ class PayOkPayment(Payment):
 
         :raise AuthorizationError: When authorization fails.
         """
-        PayOkPayment._api_key = api_key
-        PayOkPayment._api_id = api_id
-        PayOkPayment._shop_id = shop_id
-        PayOkPayment._shop_secret_key = shop_secret_key
-        PayOkPayment._payment_type = payment_type
-        PayOkPayment._currency = currency
-        PayOkPayment._success_url = success_url
+        cls._api_key = api_key
+        cls._api_id = api_id
+        cls._shop_id = shop_id
+        cls._shop_secret_key = shop_secret_key
+        cls._payment_type = payment_type
+        cls._currency = currency
+        cls._success_url = success_url
 
         cls._try_authorize()
 
@@ -153,33 +160,37 @@ class PayOkPayment(Payment):
         data = {
             "amount": self.amount,
             "payment": self.id,
-            "shop": PayOkPayment._shop_id,
+            "shop": self._shop_id,
             "desc": self.description,
             "currency": self._currency.value if self._currency else None,
             "success_url": self._success_url,
-            "method": self._payment_type.value if self._payment_type else None
+            "method": self._payment_type.value if self._payment_type else None,
         }
 
         sign_str = "|".join(map(str, (
             data["amount"], data["payment"], data["shop"], data["currency"], data["desc"],
-            PayOkPayment._shop_secret_key)))
-        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
+            self._shop_secret_key)))
+        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # noqa
 
-        return PayOkPayment._PAY_URL + "?" + urllib.parse.urlencode(data)
+        return self._PAY_URL + "?" + urllib.parse.urlencode(data)
 
     @classmethod
     def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         data = {
-            "API_ID": PayOkPayment._api_id,
-            "API_KEY": PayOkPayment._api_key,
-            "shop": PayOkPayment._shop_id,
-            "payment": payment_id
+            "API_ID": cls._api_id,
+            "API_KEY": cls._api_key,
+            "shop": cls._shop_id,
+            "payment": payment_id,
         }
 
         try:
-            response = requests.post(PayOkPayment._TRANSACTION_URL, data=data).json()
-        except Exception as e:
-            raise PaymentGettingError(e)
+            response = requests.post(
+                cls._TRANSACTION_URL,
+                data=data,
+                timeout=10,
+            ).json()
+        except RequestException as e:
+            raise PaymentGettingError() from e
 
         if response.get("status") != "success":
             raise PaymentNotFound(f"Payment with id {payment_id} not found")
@@ -189,7 +200,7 @@ class PayOkPayment(Payment):
         transaction_status = payment.get("transaction_status")
         status = None
         if transaction_status:
-            status = PayOkPayment._STATUS_MAP.get(transaction_status)
+            status = cls._STATUS_MAP.get(transaction_status)
         income = float(str(payment.get("amount_profit")))
         return status, income
 
@@ -200,11 +211,15 @@ class PayOkPayment(Payment):
             "API_KEY": cls._api_key,
         }
         try:
-            response = requests.post(cls._BALANCE_URL, data=data)
-        except Exception as e:
-            raise AuthorizationError(e)
+            response = requests.post(
+                cls._BALANCE_URL,
+                data=data,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise AuthorizationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise AuthorizationError(response.text)
         if response.json().get("status") == "error":
             raise AuthorizationError(response.json())
@@ -212,20 +227,24 @@ class PayOkPayment(Payment):
         data = {
             "amount": 1,
             "payment": "test",
-            "shop": PayOkPayment._shop_id,
+            "shop": cls._shop_id,
             "desc": "test",
             "currency": "RUB",
         }
         sign_str = "|".join(map(str, (
             data["amount"], data["payment"], data["shop"], data["currency"], data["desc"],
-            PayOkPayment._shop_secret_key)))
-        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # skipcq: BAN-B324, PTC-W1003
+            cls._shop_secret_key)))
+        data["sign"] = hashlib.md5(sign_str.encode()).hexdigest()  # noqa
         try:
-            response = requests.post(PayOkPayment._PAY_URL, data=data)
-        except Exception as e:
-            raise AuthorizationError(e)
+            response = requests.post(
+                cls._PAY_URL,
+                data=data,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise AuthorizationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise AuthorizationError(response.text)
         if "Такой магазин не зарегистрирован." in response.text:
             raise AuthorizationError("Invalid shop ID")

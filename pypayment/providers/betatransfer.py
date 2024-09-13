@@ -1,12 +1,20 @@
 import hashlib
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Tuple, Mapping, Any
+from typing import Any, Mapping, Optional, Tuple
 
 import requests
+from requests import RequestException
 
-from pypayment import Payment, PaymentStatus, AuthorizationError, PaymentCreationError, PaymentGettingError, \
-    PaymentNotFound, ChargeCommission
+from pypayment import (
+    AuthorizationError,
+    ChargeCommission,
+    Payment,
+    PaymentCreationError,
+    PaymentGettingError,
+    PaymentNotFound,
+    PaymentStatus,
+)
 
 
 class BetaTransferCurrency(Enum):
@@ -21,13 +29,15 @@ class BetaTransferCurrency(Enum):
     KZT = "KZT"
     """Kazakhstani tenge."""
     UZS = "UZS"
-    """Uzbekistani soʻm."""
+    """Uzbekistani so`m."""
     BYN = "BYN"
     """Belarusian ruble."""
 
 
 @dataclass
 class BetaTransferGateway:
+    """BetaTransfer gateway dataclass."""
+
     name: str
     currency: BetaTransferCurrency
     commission_in_percent: float
@@ -43,7 +53,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=2,
         min_amount=5,
-        max_amount=5000
+        max_amount=5000,
     )
     """USDT TRC20 payment type."""
     USDT_ERC20 = BetaTransferGateway(
@@ -51,7 +61,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=2,
         min_amount=30,
-        max_amount=5000
+        max_amount=5000,
     )
     """USDT ERC20 payment type."""
     ETH = BetaTransferGateway(
@@ -59,7 +69,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=0,
         min_amount=22,
-        max_amount=5000
+        max_amount=5000,
     )
     """Etherium payment type."""
     BTC = BetaTransferGateway(
@@ -67,7 +77,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=0,
         min_amount=20,
-        max_amount=500
+        max_amount=500,
     )
     """Bitcoin payment type."""
     CRYPTO = BetaTransferGateway(
@@ -75,7 +85,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=2,
         min_amount=5,
-        max_amount=5000
+        max_amount=5000,
     )
     """Crypto payment type."""
     KZT_CARD_USD = BetaTransferGateway(
@@ -83,7 +93,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.USD,
         commission_in_percent=12,
         min_amount=12,
-        max_amount=1000
+        max_amount=1000,
     )
     """P2R KZT payment type."""
     KZT_CARD = BetaTransferGateway(
@@ -91,7 +101,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.KZT,
         commission_in_percent=12,
         min_amount=None,
-        max_amount=None
+        max_amount=None,
     )
     """P2R KZT payment type."""
     UZS_CARD = BetaTransferGateway(
@@ -99,7 +109,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.UZS,
         commission_in_percent=12,
         min_amount=100000,
-        max_amount=None
+        max_amount=None,
     )
     """UZS payment type."""
     RUB_P2R = BetaTransferGateway(
@@ -107,7 +117,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=9.5,
         min_amount=1500,
-        max_amount=50000
+        max_amount=50000,
     )
     """RUB P2R payment type."""
     RUB_SBP = BetaTransferGateway(
@@ -115,7 +125,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=9,
         min_amount=500,
-        max_amount=10000
+        max_amount=10000,
     )
     """Qiwi Card payment type."""
     RUB_CARD = BetaTransferGateway(
@@ -123,7 +133,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=12,
         min_amount=100,
-        max_amount=75000
+        max_amount=75000,
     )
     """SBP payment type."""
     YOOMONEY = BetaTransferGateway(
@@ -131,7 +141,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=14,
         min_amount=1000,
-        max_amount=50000
+        max_amount=50000,
     )
     """YooMoney payment type."""
     SBER_PAY = BetaTransferGateway(
@@ -139,7 +149,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=10,
         min_amount=500,
-        max_amount=100000
+        max_amount=100000,
     )
     """Sber Pay payment type."""
     RUB_IBAN = BetaTransferGateway(
@@ -147,7 +157,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.RUB,
         commission_in_percent=9,
         min_amount=300,
-        max_amount=100000
+        max_amount=100000,
     )
     """RUB IBAN payment type."""
     UAH_CARD = BetaTransferGateway(
@@ -155,7 +165,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.UAH,
         commission_in_percent=9.5,
         min_amount=350,
-        max_amount=10000
+        max_amount=10000,
     )
     """UAH card payment type."""
     BYN_CARD = BetaTransferGateway(
@@ -163,7 +173,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.BYN,
         commission_in_percent=12,
         min_amount=30,
-        max_amount=10000
+        max_amount=10000,
     )
     """BYN card payment type."""
     BYN_CARD2 = BetaTransferGateway(
@@ -171,7 +181,7 @@ class BetaTransferPaymentType(Enum):
         currency=BetaTransferCurrency.BYN,
         commission_in_percent=12,
         min_amount=30,
-        max_amount=5000
+        max_amount=5000,
     )
     """BYN card payment type."""
 
@@ -217,22 +227,25 @@ class BetaTransferPayment(Payment):
         "new": PaymentStatus.WAITING,
         "entered_card_data": PaymentStatus.WAITING,
         "partial_payment": PaymentStatus.WAITING,
-        "awaiting_confirmation": PaymentStatus.WAITING
+        "awaiting_confirmation": PaymentStatus.WAITING,
     }
 
-    def __init__(self,
-                 amount: float,
-                 description: str = "",
-                 id: Optional[str] = None,
-                 payment_type: Optional[BetaTransferPaymentType] = None,
-                 url_result: Optional[str] = None,
-                 url_success: Optional[str] = None,
-                 url_fail: Optional[str] = None,
-                 locale: Optional[BetaTransferLocale] = None,
-                 charge_commission: Optional[ChargeCommission] = None,
-                 validate_params: bool = True,
-                 payer_id: Optional[str] = None) -> None:
-        """
+    def __init__(
+        self,
+        amount: float,
+        description: str = "",
+        id: Optional[str] = None,
+        payment_type: Optional[BetaTransferPaymentType] = None,
+        url_result: Optional[str] = None,
+        url_success: Optional[str] = None,
+        url_fail: Optional[str] = None,
+        locale: Optional[BetaTransferLocale] = None,
+        charge_commission: Optional[ChargeCommission] = None,
+        validate_params: bool = True,
+        payer_id: Optional[str] = None,
+    ) -> None:
+        """Instantiate BetaTransferPayment class.
+
         You need to BetaTransferPayment.authorize() first!
 
         Instantiation generates new BetaTransfer invoice instance right away.
@@ -254,21 +267,19 @@ class BetaTransferPayment(Payment):
         :raises NotAuthorizedError: When class was not authorized with BetaTransferPayment.authorize()
         :raises PaymentCreationError: When payment creation failed.
         """
-        self._payment_type = BetaTransferPayment._payment_type if payment_type is None else payment_type
-        self._url_result = BetaTransferPayment._url_result if url_result is None else url_result
-        self._url_success = BetaTransferPayment._url_success if url_success is None else url_success
-        self._url_fail = BetaTransferPayment._url_fail if url_fail is None else url_fail
-        self._locale = BetaTransferPayment._locale if locale is None else locale
-        self._charge_commission = BetaTransferPayment._charge_commission if charge_commission is None \
-            else charge_commission
-        self._do_params_validation = BetaTransferPayment._do_params_validation if validate_params is None \
-            else validate_params
+        self._payment_type = payment_type or self._payment_type
+        self._url_result = url_result or self._url_result
+        self._url_success = url_success or self._url_success
+        self._url_fail = url_fail or self._url_fail
+        self._locale = locale or self._locale
+        self._charge_commission = charge_commission or self._charge_commission
+        self._do_params_validation = validate_params or self._do_params_validation
         self.payer_id = payer_id
 
         super().__init__(amount, description, id)
 
-    def _validate_params(self):
-        if not BetaTransferPayment._do_params_validation:
+    def _validate_params(self) -> None:
+        if not self._do_params_validation:
             return
 
         if not self._url_success or not self._url_fail:
@@ -289,21 +300,21 @@ class BetaTransferPayment(Payment):
             raise PaymentCreationError(f"Amount for {payment_type_name} must be between "
                                        f"{min_amount} and {max_amount} {currency_name}!")
 
-        if self._payment_type == BetaTransferPaymentType.QIWI_CARD and not self.payer_id:
-            raise PaymentCreationError("You should specify payer_id for Qiwi Card (Qiwi2)")
-
     @classmethod
-    def authorize(cls,
-                  public_key: str,
-                  private_key: str,
-                  payment_type: BetaTransferPaymentType = BetaTransferPaymentType.RUB_P2R,
-                  url_result: Optional[str] = None,
-                  url_success: Optional[str] = None,
-                  url_fail: Optional[str] = None,
-                  locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN,
-                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
-                  do_params_validation: bool = True) -> None:
-        """
+    def authorize(
+        cls,
+        public_key: str,
+        private_key: str,
+        payment_type: BetaTransferPaymentType = BetaTransferPaymentType.RUB_P2R,
+        url_result: Optional[str] = None,
+        url_success: Optional[str] = None,
+        url_fail: Optional[str] = None,
+        locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN,
+        charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
+        do_params_validation: bool = True,
+    ) -> None:
+        """Authorize BetaTransferPayment class.
+
         Must be called before the first use of the class!
 
         Tries to authorize to BetaTransfer API.
@@ -321,15 +332,15 @@ class BetaTransferPayment(Payment):
 
         :raises AuthorizationError: When authorization fails.
         """
-        BetaTransferPayment._public_key = public_key
-        BetaTransferPayment._private_key = private_key
-        BetaTransferPayment._payment_type = payment_type
-        BetaTransferPayment._url_result = url_result
-        BetaTransferPayment._url_success = url_success
-        BetaTransferPayment._url_fail = url_fail
-        BetaTransferPayment._locale = locale
-        BetaTransferPayment._charge_commission = charge_commission
-        BetaTransferPayment._do_params_validation = do_params_validation
+        cls._public_key = public_key
+        cls._private_key = private_key
+        cls._payment_type = payment_type
+        cls._url_result = url_result
+        cls._url_success = url_success
+        cls._url_fail = url_fail
+        cls._locale = locale
+        cls._charge_commission = charge_commission
+        cls._do_params_validation = do_params_validation
 
         cls._try_authorize()
 
@@ -338,7 +349,7 @@ class BetaTransferPayment(Payment):
             raise PaymentCreationError("You must specify payment_type and locale!")
 
         params = {
-            "token": BetaTransferPayment._public_key
+            "token": self._public_key,
         }
 
         data = {
@@ -351,16 +362,21 @@ class BetaTransferPayment(Payment):
             "urlFail": self._url_fail,
             "locale": self._locale.value,
             "fullCallback": 1,
-            "payerId": self.payer_id
+            "payerId": self.payer_id,
         }
 
         try:
-            response = requests.post(BetaTransferPayment._PAYMENT_URL, headers=self._get_headers(), params=params,
-                                     data=data)
-        except Exception as e:
-            raise PaymentCreationError(e)
+            response = requests.post(
+                self._PAYMENT_URL,
+                headers=self._get_headers(),
+                params=params,
+                data=data,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise PaymentCreationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentCreationError(response.text)
 
         return str(response.json().get("url"))
@@ -368,30 +384,36 @@ class BetaTransferPayment(Payment):
     @classmethod
     def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         params = {
-            "token": BetaTransferPayment._public_key,
+            "token": cls._public_key,
         }
 
         data = {
-            "orderId": payment_id
+            "orderId": payment_id,
         }
         data["sign"] = cls._get_sign(data)
 
         try:
-            response = requests.get(BetaTransferPayment._INFO_URL, headers=cls._get_headers(), data=data, params=params)
-        except Exception as e:
-            raise PaymentGettingError(e)
+            response = requests.get(
+                cls._INFO_URL,
+                headers=cls._get_headers(),
+                data=data,
+                params=params,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise PaymentGettingError() from e
 
-        if response.status_code == 404:
+        if response.status_code == requests.codes.not_found:
             raise PaymentNotFound(f"Payment with id {payment_id} not found.")
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentGettingError(response.text)
 
         payment: Mapping[str, Any] = response.json()
 
         status = payment.get("status")
         if status:
-            status = BetaTransferPayment._STATUS_MAP.get(status)
+            status = cls._STATUS_MAP.get(status)
         income = float(str(payment.get("balanceAmount")))
         return status, income
 
@@ -399,30 +421,35 @@ class BetaTransferPayment(Payment):
     def _get_headers(cls) -> Mapping[str, str]:
         return {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
 
     @classmethod
     def _try_authorize(cls) -> None:
         params = {
-            "token": str(BetaTransferPayment._public_key),
+            "token": str(cls._public_key),
         }
         params["sign"] = cls._get_sign(params)
 
         try:
-            response = requests.get(BetaTransferPayment._ACCOUNT_INFO_URL, headers=cls._get_headers(), params=params)
-        except Exception as e:
-            raise AuthorizationError(e)
+            response = requests.get(
+                cls._ACCOUNT_INFO_URL,
+                headers=cls._get_headers(),
+                params=params,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise AuthorizationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise AuthorizationError(response.text)
 
-        BetaTransferPayment.authorized = True
+        cls.authorized = True
 
     @classmethod
     def _get_sign(cls, data: Mapping[str, str]) -> str:
-        sign = "".join(str(value) for value in data.values()) + str(BetaTransferPayment._private_key)
-        return hashlib.md5(sign.encode()).hexdigest()
+        sign = "".join(str(value) for value in data.values()) + str(cls._private_key)
+        return hashlib.md5(sign.encode()).hexdigest()  # noqa
 
     @property
     def _amount_with_commission(self) -> float:

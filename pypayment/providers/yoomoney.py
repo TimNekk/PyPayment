@@ -1,10 +1,19 @@
+import contextlib
 from enum import Enum
-from typing import Optional, Mapping, Any, Tuple
+from typing import Any, Mapping, Optional, Tuple
 
 import requests
+from requests import RequestException
 
-from pypayment import Payment, PaymentCreationError, PaymentGettingError, AuthorizationError, ChargeCommission, \
-    PaymentStatus, PaymentNotFound
+from pypayment import (
+    AuthorizationError,
+    ChargeCommission,
+    Payment,
+    PaymentCreationError,
+    PaymentGettingError,
+    PaymentNotFound,
+    PaymentStatus,
+)
 
 
 class YooMoneyPaymentType(Enum):
@@ -37,17 +46,20 @@ class YooMoneyPayment(Payment):
     _STATUS_MAP = {
         "success": PaymentStatus.PAID,
         "refused": PaymentStatus.REJECTED,
-        "in_progress": PaymentStatus.WAITING
+        "in_progress": PaymentStatus.WAITING,
     }
 
-    def __init__(self,
-                 amount: float,
-                 description: str = "",
-                 id: Optional[str] = None,
-                 payment_type: Optional[YooMoneyPaymentType] = None,
-                 charge_commission: Optional[ChargeCommission] = None,
-                 success_url: Optional[str] = None):
-        """
+    def __init__(
+        self,
+        amount: float,
+        description: str = "",
+        id: Optional[str] = None,
+        payment_type: Optional[YooMoneyPaymentType] = None,
+        charge_commission: Optional[ChargeCommission] = None,
+        success_url: Optional[str] = None,
+    ) -> None:
+        """Authorize YooMoneyPayment class.
+
         You need to YooMoneyPayment.authorize() first!
 
         Instantiation generates new YooMoney invoice instance right away.
@@ -63,19 +75,22 @@ class YooMoneyPayment(Payment):
         :raise NotAuthorized: When class was not authorized with YooMoneyPayment.authorize()
         :raise PaymentCreationError: When payment creation failed.
         """
-        self._payment_type = YooMoneyPayment._payment_type if payment_type is None else payment_type
-        self._charge_commission = YooMoneyPayment._charge_commission if charge_commission is None else charge_commission
-        self._success_url = YooMoneyPayment._success_url if success_url is None else success_url
+        self._payment_type = payment_type or self._payment_type
+        self._charge_commission = charge_commission or self._charge_commission
+        self._success_url = success_url or self._success_url
 
         super().__init__(amount, description, id)
 
     @classmethod
-    def authorize(cls,
-                  access_token: str,
-                  payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
-                  charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
-                  success_url: Optional[str] = None) -> None:
-        """
+    def authorize(
+        cls,
+        access_token: str,
+        payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
+        charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
+        success_url: Optional[str] = None,
+    ) -> None:
+        """Authorize YooMoneyPayment class.
+
         Must be called before the first use of the class!
 
         Tries to authorize to YooMoney API.
@@ -88,24 +103,27 @@ class YooMoneyPayment(Payment):
 
         :raise AuthorizationError: When authorization fails.
         """
-        YooMoneyPayment._access_token = access_token
-        YooMoneyPayment._payment_type = payment_type
-        YooMoneyPayment._charge_commission = charge_commission
-        YooMoneyPayment._success_url = success_url
+        cls._access_token = access_token
+        cls._payment_type = payment_type
+        cls._charge_commission = charge_commission
+        cls._success_url = success_url
 
         cls._try_authorize()
 
     @classmethod
     def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
         try:
-            response = requests.post(YooMoneyPayment._OPERATION_HISTORY_URL,
-                                     headers=YooMoneyPayment._get_headers(),
-                                     data={"label": payment_id})
+            response = requests.post(
+                cls._OPERATION_HISTORY_URL,
+                headers=cls._get_headers(),
+                data={"label": payment_id},
+                timeout=10,
+            )
             print(response.json())
-        except Exception as e:
-            raise PaymentGettingError(e)
+        except RequestException as e:
+            raise PaymentGettingError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentGettingError(response.text)
 
         operations = response.json().get("operations")
@@ -115,13 +133,13 @@ class YooMoneyPayment(Payment):
 
         payment: Mapping[str, Any] = operations[0]
 
-        status = YooMoneyPayment._STATUS_MAP.get(str(payment.get("status")))
+        status = cls._STATUS_MAP.get(str(payment.get("status")))
         income = float(str(payment.get("amount")))
         return status, income
 
     def _create_url(self) -> str:
         data = {
-            "receiver": YooMoneyPayment._account_id,
+            "receiver": self._account_id,
             "quickpay-form": "shop",
             "targets": self.id,
             "paymentType": self._payment_type.value if self._payment_type else None,
@@ -129,15 +147,20 @@ class YooMoneyPayment(Payment):
             "formcomment": self.description,
             "short-dest": self.description,
             "label": self.id,
-            "successURL": self._success_url
+            "successURL": self._success_url,
         }
 
         try:
-            response = requests.post(YooMoneyPayment._QUICKPAY_URL, headers=YooMoneyPayment._get_headers(), data=data)
-        except Exception as e:
-            raise PaymentCreationError(e)
+            response = requests.post(
+                self._QUICKPAY_URL,
+                headers=self._get_headers(),
+                data=data,
+                timeout=10,
+            )
+        except RequestException as e:
+            raise PaymentCreationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise PaymentCreationError(response.text)
 
         return str(response.url)
@@ -145,14 +168,18 @@ class YooMoneyPayment(Payment):
     @classmethod
     def _try_authorize(cls) -> None:
         try:
-            response = requests.get(cls._ACCOUNT_INFO_URL, headers=cls._get_headers())
-        except Exception as e:
-            raise AuthorizationError(e)
+            response = requests.get(
+                cls._ACCOUNT_INFO_URL,
+                headers=cls._get_headers(),
+                timeout=10,
+            )
+        except RequestException as e:
+            raise AuthorizationError() from e
 
-        if response.status_code != 200:
+        if response.status_code != requests.codes.ok:
             raise AuthorizationError("Access Token is invalid.")
 
-        cls._account_id = response.json().get('account')
+        cls._account_id = response.json().get("account")
         cls.authorized = True
 
     @classmethod
@@ -160,12 +187,12 @@ class YooMoneyPayment(Payment):
         return {
             "Authorization": f"Bearer {cls._access_token}",
             "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
 
     @property
     def _sum_with_commission(self) -> float:
-        """https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions"""
+        """See more https://yoomoney.ru/docs/payment-buttons/using-api/forms#calculating-commissions."""
         if self._charge_commission == ChargeCommission.FROM_CUSTOMER:
             if self._payment_type == YooMoneyPaymentType.WALLET:
                 commission_multiplier = 0.01
@@ -178,12 +205,13 @@ class YooMoneyPayment(Payment):
         return self.amount
 
     @classmethod
-    def get_access_token(cls,
-                         client_id: str,
-                         redirect_uri: str,
-                         instance_name: Optional[str] = "") -> Optional[str]:
-        """
-        Gets access_token from client_id.
+    def get_access_token(
+        cls,
+        client_id: str,
+        redirect_uri: str,
+        instance_name: Optional[str] = "",
+    ) -> Optional[str]:
+        """Get access_token from client_id.
 
         You need to call method only once, to get access_token required in YooMoneyPayment.authorize().
 
@@ -201,26 +229,33 @@ class YooMoneyPayment(Payment):
         if instance_name:
             data["instance_name"] = instance_name
 
-        response = requests.post(cls._AUTHORIZE_URL, data=data)
+        response = requests.post(
+            cls._AUTHORIZE_URL,
+            data=data,
+            timeout=10,
+        )
         print("1)\tGo to this URL and give access to the application\n",
               f"\t{response.url}\n\n",
-              f"2)\tAfter accepting you will be redirected to {redirect_uri}?code=YOUR_CODE_VALUE with \"code\" as query parameter")
+              f'2)\tAfter accepting you will be redirected to {redirect_uri}?code=YOUR_CODE_VALUE with "code" '
+              f"as query parameter")
         code = input("\tCopy YOUR_CODE_VALUE OR whole redirect url and paste it here: ")
 
-        try:
+        with contextlib.suppress(ValueError):
             code = code[code.index("code=") + 5:].replace(" ", "")
-        except ValueError:
-            pass
 
         data = {
-            'code': code,
-            'client_id': client_id,
-            'grant_type': 'authorization_code',
-            'redirect_uri': redirect_uri,
+            "code": code,
+            "client_id": client_id,
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri,
         }
 
-        response = requests.post(cls._TOKEN_URL, data=data)
-        access_token: str = response.json()['access_token']
+        response = requests.post(
+            cls._TOKEN_URL,
+            data=data,
+            timeout=10,
+        )
+        access_token: str = response.json()["access_token"]
 
         if access_token == "":
             print("\n3)\tSomething went wrong, try again")
