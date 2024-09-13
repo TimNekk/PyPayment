@@ -31,7 +31,80 @@ class AaioCurrency(Enum):
 class AaioPaymentType(Enum):
     """Aaio payment types."""
 
-    A = "A"
+    CARDS_RU = "cards_ru"
+    """Cards RF"""
+    CARDS_UA = "cards_ua"
+    """Cards Ukraine"""
+    CARDS_KZ = "cards_kz"
+    """Cards Kazakhstan"""
+    SBP = "sbp"
+    """SBP (p2p, QR-code - individually)"""
+    QIWI = "qiwi"
+    """QIWI wallet"""
+    PERFECTMONEY = "perfectmoney"
+    """Perfect Money"""
+    YOOMONEY = "yoomoney"
+    """Yoomoney"""
+    ADVCASH = "advcash"
+    """Advcash"""
+    PAYEER = "payeer"
+    """Payeer"""
+    SKINS = "skins"
+    """Payment with skins"""
+    BEELINE_RU = "beeline_ru"
+    """Beeline RF (phone payment)"""
+    TELE2 = "tele2"
+    """Tele2 (phone payment)"""
+    MEGAFON_RU = "megafon_ru"
+    """Megafon RF (phone payment)"""
+    MTS_RU = "mts_ru"
+    """MTS RF (phone payment)"""
+    YOTA = "yota"
+    """YOTA (phone payment)"""
+    BITCOIN = "bitcoin"
+    """Bitcoin"""
+    BITCOINCASH = "bitcoincash"
+    """Bitcoin Cash"""
+    ETHEREUM = "ethereum"
+    """Ethereum"""
+    TETHER_TRC20 = "tether_trc20"
+    """Tether (TRC-20)"""
+    TETHER_ERC20 = "tether_erc20"
+    """Tether (ERC-20)"""
+    TETHER_TON = "tether_ton"
+    """Tether (TON)"""
+    TETHER_POLYGON = "tether_polygon"
+    """Tether (Polygon)"""
+    TETHER_BSC = "tether_bsc"
+    """Tether (BSC)"""
+    USDCOIN_TRC20 = "usdcoin_trc20"
+    """USD Coin (TRC-20)"""
+    USDCOIN_ERC20 = "usdcoin_erc20"
+    """USD Coin (ERC-20)"""
+    USDCOIN_BSC = "usdcoin_bsc"
+    """USD Coin (BSC)"""
+    BNB_BSC = "bnb_bsc"
+    """Binance Coin (BSC)"""
+    NOTCOIN = "notcoin"
+    """Notcoin"""
+    TRON = "tron"
+    """TRON"""
+    LITECOIN = "litecoin"
+    """Litecoin"""
+    DOGECOIN = "dogecoin"
+    """Dogecoin"""
+    DAI_ERC20 = "dai_erc20"
+    """DAI (ERC-20)"""
+    DAI_BSC = "dai_bsc"
+    """DAI (BSC)"""
+    DASH = "dash"
+    """DASH"""
+    MONERO = "monero"
+    """Monero"""
+    COUPON = "coupon"
+    """Coupon (Aaio internal system)"""
+    BALANCE = "balance"
+    """Aaio Balance (Aaio internal system)"""
 
 
 class AaioPayment(Payment):
@@ -87,7 +160,7 @@ class AaioPayment(Payment):
         api_key: str,
         secret_1: str,
         merchant_id: str,
-        payment_type: AaioPaymentType = AaioPaymentType.A,  # TODO: Add default value.
+        payment_type: AaioPaymentType = AaioPaymentType.CARDS_RU,
         currency: AaioCurrency = AaioCurrency.RUB,
     ) -> None:
         """Authorize AaioPayment class.
@@ -122,7 +195,7 @@ class AaioPayment(Payment):
             "sign": self._sign,
             "currency": self._currency.value,
             "desc": self.description,
-            "method": "sbp",  # TODO: Add method parameter.
+            "method": self._payment_type.value
         }
 
         print(data)
