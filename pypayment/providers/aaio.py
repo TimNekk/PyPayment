@@ -195,7 +195,7 @@ class AaioPayment(Payment):
             "sign": self._sign,
             "currency": self._currency.value,
             "desc": self.description,
-            "method": self._payment_type.value
+            "method": self._payment_type.value,
         }
 
         print(data)
