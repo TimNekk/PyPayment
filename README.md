@@ -1,108 +1,97 @@
-<h1 align="center">
-  <br>
-  <img src="logo.png" alt="PyPayment" height="300"></a>
-  <br>
-  PyPayment
-  <br>
-</h1>
+<div align="center">
+    <h1>
+        <img src="assets/logo.png" alt="PyPayment" height="300">
+        <br>
+        <code>PyPayment</code>
+    </h1>
+    <div>
+        <a href="https://pypi.org/project/pypayment/"><img
+            alt="PyPI"
+            src="https://img.shields.io/pypi/v/pypayment?color=orange&style=flat-square"
+        ></a>
+        <a href="https://www.python.org/"><img 
+            alt="Python 3"
+            src="https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet&style=flat-square"
+        ></a>
+        <a href="https://github.com/TimNekk/PyPayment/blob/main/.github/workflows/lint.yml"><img
+            alt="Lint"
+            src="https://img.shields.io/github/actions/workflow/status/TimNekk/PyPayment/lint.yml?label=Lint&style=flat-square"
+        ></a>
+        <a href="https://github.com/astral-sh/ruff"><img
+            alt="Ruff"
+            src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&style=flat-square"
+        ></a>
+        <a href="https://gitmoji.dev"><img
+            alt="Gitmoji"
+            src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
+        ></a>
+    </div>
+</div>
 
-<h4 align="center">Payment providers API wrapper</h4>
 
-<p class="badges" align="center">
-    <img src="https://img.shields.io/pypi/v/pypayment?color=orange" alt="PyPI">
-    <img src="https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet" alt="Python 3">
-    <img src="https://github.com/TimNekk/pypayment/actions/workflows/tests.yml/badge.svg" alt="Tests">
-    <a href="https://deepsource.io/gh/TimNekk/pypayment/?ref=repository-badge}" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/TimNekk/pypayment.svg/?label=active+issues&show_trend=true&token=YlQEv_BbbqmICG5Xy3skch_c"/></a>
-</p>
+**PyPayment** is a wrapper for payment provider APIs
 
-<p align="center">
-  <a href="https://pypayment.readthedocs.io">Documentation</a> •
-  <a href="#providers">Providers</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#quickstart">Quickstart</a> •
-  <a href="#contributing">Contributing</a> •
-  <a href="#license">License</a>
-</p>
+> Main idea – **unified interface** for every provider
 
-**PyPayment** is a Python wrapper for API of different payment providers. 
-It is designed to be a simple and easy to use library for developers to integrate payment into their applications.
+This library simplifies payment integration
 
-Main idea is to provide a unified interface for different payment providers.
+### Supported Providers
 
-For more details see [documentation](https://pypayment.readthedocs.io).
-
-## Providers:
 - [Qiwi P2P](https://p2p.qiwi.com/)
 - [YooMoney](https://yoomoney.ru/)
 - [PayOk](https://payok.io/)
 - [BetaTransfer](https://betatransfer.io/)
+- [Aaio](https://aaio.so/)
 - [Lava](https://lava.kz/) *(under development)*
-## Installation
 
-Install the current version with [PyPI](https://pypi.org/project/pypayment/)
+## 📦 Installation
+
+Install the latest version with [PyPI](https://pypi.org/project/pypayment/)
 
 ```bash
 pip install -U pypayment
 ```
 
-## Quickstart
-
-Choose payment provider and authorize. For example, for Qiwi
+## 🚀 Quickstart
 
 ```python
-from pypayment import QiwiPayment
-
-QiwiPayment.authorize("my_secret_key")
-```
-
-Create a payment and get it's `url`
-
-```python
-from pypayment import Payment, QiwiPayment
-
-payment: Payment = QiwiPayment(amount=100) # E.x. commission is 10%
-
-print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id
-```
-
-Wait for payment to be completed and get it's income
-
-Use `update()` method to update payment's `status` and `income`
-
-```python
-from pypayment import PaymentStatus
-
-while payment.status != PaymentStatus.PAID:
-    input("Press Enter to update payment status and income")
-    payment.update()
-
-print("Payment is completed!")
-print(payment.income)  # 90.0
-```
-
-Summary
-
-```python
+# Choose payment provider. For example, Qiwi
 from pypayment import Payment, QiwiPayment, PaymentStatus
 
+# Authorize payment provider
 QiwiPayment.authorize("my_secret_key")
 
-payment: Payment = QiwiPayment(amount=100) # E.x. commission is 10%
-print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=payment_unique_id
+# Create a payment and get its url
+payment: Payment = QiwiPayment(amount=100)
+print(payment.url)  # https://oplata.qiwi.com/form/?invoice_uid=<payment_unique_id>
 
+# Wait for payment to be completed
 while payment.status != PaymentStatus.PAID:
-    input("Press Enter to update payment status")
+    input("Press Enter to update payment status...")
+
+    # Use `update()` method to update payment's `status` and `income`
     payment.update()
 
 print("Payment is completed!")
-print(payment.income)  # 90.0
+print(payment.income)  # 90.0 (if commission is 10%)
 ```
 
-## Contributing
+> [!NOTE]
+> For more details see [documentation](https://pypayment.readthedocs.io)
 
-Bug reports and/or pull requests are welcome
+## 👥 Contributing
 
+**Contributions are welcome! Here's how you can help:**
 
-## License
+1. Fork it
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+6. Get your code reviewed
+7. Merge your code
+8. Get a 🌟
 
-The module is available as open source under the terms of the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
