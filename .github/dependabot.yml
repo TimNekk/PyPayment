@@ -6,6 +6,8 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: ⬆
+    reviewers:
+      - "TimNekk"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -13,3 +15,5 @@ updates:
     versioning-strategy: "increase-if-necessary"
     commit-message:
       prefix: ⬆
+    reviewers:
+      - "TimNekk"
