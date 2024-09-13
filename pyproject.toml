@@ -1,22 +1,37 @@
-[build-system]
-requires = ["setuptools>=42.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[tool.pytest.ini_options]
-addopts = "--cov=pypayment"
-testpaths = [
-    "test",
+[tool.poetry]
+name = "pypayment"
+version = "1.8.0"
+description = "Payment Providers API Wrapper"
+authors = ["Tim <herew26@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
 ]
+keywords = ["payment", "api", "wrapper", "payment-gateway", "payment-provider"]
+homepage = "https://github.com/TimNekk/pypayment"
+documentation = "https://pypayment.readthedocs.io/"
+repository = "https://github.com/TimNekk/pypayment.git"
 
-[tool.mypy]
-mypy_path = "src"
-check_untyped_defs = true
-disallow_any_generics = true
-ignore_missing_imports = true
-no_implicit_optional = true
-show_error_codes = true
-strict_equality = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unreachable = true
-warn_unused_configs = true
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.32.3"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "D", "I", "W", "C90", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "B", "COM", "C4", "EXE", "ISC", "ICN", "LOG", "G", "PIE", "PYI", "PT", "Q", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "PD", "PL", "FLY", "NPY", "PERF", "RUF"]
+ignore = ["D102", "D100", "D104", "D203", "D213", "ANN101", "ANN102", "B027", "TD002", "TD003", "PLR0913", "RUF012"]
