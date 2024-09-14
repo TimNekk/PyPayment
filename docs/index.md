@@ -32,7 +32,7 @@
 
 ---
 
-**Documentation**: <a href="https://pypayment.readthedocs.io" target="_blank">https://pypayment.readthedocs.io</a>
+**Documentation**: <a href="https://timnekk.github.io/PyPayment/" target="_blank">https://timnekk.github.io/PyPayment/</a>
 
 **Source Code**: <a href="https://github.com/TimNekk/PyPayment" target="_blank">https://github.com/TimNekk/PyPayment</a>
 
@@ -63,7 +63,7 @@ pip install -U pypayment
 
 ## Quickstart
 
-``` py
+```python
 # Choose payment provider. For example, Qiwi
 from pypayment import Payment, QiwiPayment, PaymentStatus
 
@@ -86,7 +86,7 @@ print(payment.income)  # 90.0 (if commission is 10%)
 ```
 
 > [!NOTE]
-> For more details see [documentation](https://pypayment.readthedocs.io)
+> For more details see [documentation](https://timnekk.github.io/PyPayment/)
 
 ## Contributing
 
