@@ -26,6 +26,14 @@
 </div>
 
 
+---
+
+**Documentation**: <a href="https://pypayment.readthedocs.io" target="_blank">https://pypayment.readthedocs.io</a>
+
+**Source Code**: <a href="https://github.com/TimNekk/PyPayment" target="_blank">https://github.com/TimNekk/PyPayment</a>
+
+---
+
 **PyPayment** is a wrapper for payment provider APIs
 
 > Main idea – **unified interface** for every provider
