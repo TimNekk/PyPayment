@@ -23,6 +23,8 @@ requests = "^2.32.3"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.4"
 
+[tool.poetry.group.docs.dependencies]
+mkdocs-material = "^9.5.34"
 
 [build-system]
 requires = ["poetry-core"]
