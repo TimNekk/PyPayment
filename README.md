@@ -28,7 +28,7 @@
 
 ---
 
-**Documentation**: <a href="https://pypayment.readthedocs.io" target="_blank">https://pypayment.readthedocs.io</a>
+**Documentation**: <a href="https://timnekk.github.io/PyPayment/" target="_blank">https://timnekk.github.io/PyPayment/</a>
 
 **Source Code**: <a href="https://github.com/TimNekk/PyPayment" target="_blank">https://github.com/TimNekk/PyPayment</a>
 
@@ -49,7 +49,7 @@ This library simplifies payment integration
 - [Aaio](https://aaio.so/)
 - [Lava](https://lava.kz/)
 
-## 📦 Installation
+## Installation
 
 Install the latest version with [PyPI](https://pypi.org/project/pypayment/)
 
@@ -57,7 +57,7 @@ Install the latest version with [PyPI](https://pypi.org/project/pypayment/)
 pip install -U pypayment
 ```
 
-## 🚀 Quickstart
+## Quickstart
 
 ```python
 # Choose payment provider. For example, Qiwi
@@ -82,9 +82,9 @@ print(payment.income)  # 90.0 (if commission is 10%)
 ```
 
 > [!NOTE]
-> For more details see [documentation](https://pypayment.readthedocs.io)
+> For more details see [documentation](https://timnekk.github.io/PyPayment/)
 
-## 👥 Contributing
+## Contributing
 
 **Contributions are welcome! Here's how you can help:**
 
@@ -97,6 +97,6 @@ print(payment.income)  # 90.0 (if commission is 10%)
 7. Merge your code
 8. Get a 🌟
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
