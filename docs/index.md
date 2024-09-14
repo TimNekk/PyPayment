@@ -1,5 +1,9 @@
+<style>
+.md-content .md-typeset h1 { display: none; }
+</style>
+
 <div align="center">
-    <img src="docs/assets/banner.png" alt="PyPayment">
+    <img src="assets/banner.png" alt="PyPayment">
     <p><em>Unified Interface for Payment APIs</em></p>
     <div>
         <a href="https://pypi.org/project/pypayment/" target="_blank"><img
@@ -49,7 +53,7 @@ This library simplifies payment integration
 - [Aaio](https://aaio.so/)
 - [Lava](https://lava.kz/)
 
-## 📦 Installation
+## Installation
 
 Install the latest version with [PyPI](https://pypi.org/project/pypayment/)
 
@@ -57,9 +61,9 @@ Install the latest version with [PyPI](https://pypi.org/project/pypayment/)
 pip install -U pypayment
 ```
 
-## 🚀 Quickstart
+## Quickstart
 
-```python
+``` py
 # Choose payment provider. For example, Qiwi
 from pypayment import Payment, QiwiPayment, PaymentStatus
 
@@ -84,7 +88,7 @@ print(payment.income)  # 90.0 (if commission is 10%)
 > [!NOTE]
 > For more details see [documentation](https://pypayment.readthedocs.io)
 
-## 👥 Contributing
+## Contributing
 
 **Contributions are welcome! Here's how you can help:**
 
@@ -97,6 +101,6 @@ print(payment.income)  # 90.0 (if commission is 10%)
 7. Merge your code
 8. Get a 🌟
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
