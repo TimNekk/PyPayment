@@ -1,29 +1,26 @@
 <div align="center">
-    <h1>
-        <img src="assets/logo.png" alt="PyPayment" height="300">
-        <br>
-        <code>PyPayment</code>
-    </h1>
+    <img src="docs/assets/banner.png" alt="PyPayment">
+    <p><em>Unified Interface for Payment APIs</em></p>
     <div>
-        <a href="https://pypi.org/project/pypayment/"><img
+        <a href="https://pypi.org/project/pypayment/" target="_blank"><img
             alt="PyPI"
-            src="https://img.shields.io/pypi/v/pypayment?color=orange&style=flat-square"
+            src="https://img.shields.io/pypi/v/pypayment?color=49b04f&style=flat-square"
         ></a>
-        <a href="https://www.python.org/"><img 
+        <a href="https://www.python.org/" target="_blank"><img 
             alt="Python 3"
-            src="https://img.shields.io/pypi/pyversions/pypayment?color=blueviolet&style=flat-square"
+            src="https://img.shields.io/pypi/pyversions/pypayment?color=49b04f&style=flat-square"
         ></a>
-        <a href="https://github.com/TimNekk/PyPayment/blob/main/.github/workflows/lint.yml"><img
+        <a href="https://github.com/TimNekk/PyPayment/blob/main/.github/workflows/lint.yml" target="_blank"><img
             alt="Lint"
-            src="https://img.shields.io/github/actions/workflow/status/TimNekk/PyPayment/lint.yml?label=Lint&style=flat-square"
+            src="https://img.shields.io/github/actions/workflow/status/TimNekk/PyPayment/lint.yml?color=49b04f&label=Lint&style=flat-square"
         ></a>
-        <a href="https://github.com/astral-sh/ruff"><img
+        <a href="https://github.com/astral-sh/ruff" target="_blank"><img
             alt="Ruff"
-            src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&style=flat-square"
+            src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&color=49b04f&style=flat-square"
         ></a>
-        <a href="https://gitmoji.dev"><img
+        <a href="https://gitmoji.dev" target="_blank"><img
             alt="Gitmoji"
-            src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
+            src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?color=49b04f&style=flat-square"
         ></a>
     </div>
 </div>
@@ -39,10 +36,10 @@ This library simplifies payment integration
 
 - [Qiwi P2P](https://p2p.qiwi.com/)
 - [YooMoney](https://yoomoney.ru/)
-- [PayOk](https://payok.io/)
+- [PayOk](https://payok.online/)
 - [BetaTransfer](https://betatransfer.io/)
 - [Aaio](https://aaio.so/)
-- [Lava](https://lava.kz/) *(under development)*
+- [Lava](https://lava.kz/)
 
 ## 📦 Installation
 
