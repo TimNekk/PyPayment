@@ -1,6 +1,12 @@
+from __future__ import annotations
+
 import contextlib
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
 from enum import Enum
-from typing import Any, Mapping, Optional, Tuple
 
 import requests
 from requests import RequestException
@@ -31,10 +37,10 @@ class YooMoneyPayment(Payment):
     """YooMoney payment class."""
 
     _access_token: str
-    _account_id: Optional[str] = None
-    _payment_type: Optional[YooMoneyPaymentType] = None
-    _charge_commission: Optional[ChargeCommission] = None
-    _success_url: Optional[str] = None
+    _account_id: str | None = None
+    _payment_type: YooMoneyPaymentType | None = None
+    _charge_commission: ChargeCommission | None = None
+    _success_url: str | None = None
     _BASE_URL = "https://yoomoney.ru"
     _OAUTH_URL = _BASE_URL + "/oauth"
     _API_URL = _BASE_URL + "/api"
@@ -53,10 +59,10 @@ class YooMoneyPayment(Payment):
         self,
         amount: float,
         description: str = "",
-        id: Optional[str] = None,
-        payment_type: Optional[YooMoneyPaymentType] = None,
-        charge_commission: Optional[ChargeCommission] = None,
-        success_url: Optional[str] = None,
+        id: str | None = None,
+        payment_type: YooMoneyPaymentType | None = None,
+        charge_commission: ChargeCommission | None = None,
+        success_url: str | None = None,
     ) -> None:
         """Authorize YooMoneyPayment class.
 
@@ -87,7 +93,7 @@ class YooMoneyPayment(Payment):
         access_token: str,
         payment_type: YooMoneyPaymentType = YooMoneyPaymentType.CARD,
         charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
-        success_url: Optional[str] = None,
+        success_url: str | None = None,
     ) -> None:
         """Authorize YooMoneyPayment class.
 
@@ -111,7 +117,7 @@ class YooMoneyPayment(Payment):
         cls._try_authorize()
 
     @classmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         try:
             response = requests.post(
                 cls._OPERATION_HISTORY_URL,
@@ -209,8 +215,8 @@ class YooMoneyPayment(Payment):
         cls,
         client_id: str,
         redirect_uri: str,
-        instance_name: Optional[str] = "",
-    ) -> Optional[str]:
+        instance_name: str | None = "",
+    ) -> str | None:
         """Get access_token from client_id.
 
         You need to call method only once, to get access_token required in YooMoneyPayment.authorize().

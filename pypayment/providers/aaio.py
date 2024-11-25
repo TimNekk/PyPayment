@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import hashlib
 from enum import Enum
-from typing import Any, Mapping, Optional, Tuple
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import requests
 from requests import RequestException
@@ -110,11 +115,11 @@ class AaioPaymentType(Enum):
 class AaioPayment(Payment):
     """Aaio payment provider."""
 
-    _api_key: Optional[str] = None
-    _secret_1: Optional[str] = None
-    _merchant_id: Optional[str] = None
-    _payment_type: Optional[AaioPaymentType]
-    _currency: Optional[AaioCurrency]
+    _api_key: str | None = None
+    _secret_1: str | None = None
+    _merchant_id: str | None = None
+    _payment_type: AaioPaymentType | None
+    _currency: AaioCurrency | None
     _BASE_URL = "https://aaio.so"
     _PAYMENT_URL = _BASE_URL + "/merchant/get_pay_url"
     _INFO_URL = _BASE_URL + "/api/info-pay"
@@ -131,9 +136,9 @@ class AaioPayment(Payment):
         self,
         amount: float,
         description: str,
-        id: Optional[str] = None,
-        payment_type: Optional[AaioPaymentType] = None,
-        currency: Optional[AaioCurrency] = None,
+        id: str | None = None,
+        payment_type: AaioPaymentType | None = None,
+        currency: AaioCurrency | None = None,
     ) -> None:
         """Initialize AaioPayment class.
 
@@ -216,7 +221,7 @@ class AaioPayment(Payment):
         return response.json().get("url")
 
     @classmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         params = {
             "order_id": payment_id,
             "merchant_id": cls._merchant_id,
