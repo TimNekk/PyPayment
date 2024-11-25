@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import hashlib
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Mapping, Optional, Tuple
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import requests
 from requests import RequestException
@@ -41,8 +46,8 @@ class BetaTransferGateway:
     name: str
     currency: BetaTransferCurrency
     commission_in_percent: float
-    min_amount: Optional[float]
-    max_amount: Optional[float]
+    min_amount: float | None
+    max_amount: float | None
 
 
 class BetaTransferPaymentType(Enum):
@@ -200,14 +205,14 @@ class BetaTransferLocale(Enum):
 class BetaTransferPayment(Payment):
     """BetaTransfer payment class."""
 
-    _public_key: Optional[str] = None
-    _private_key: Optional[str] = None
-    _payment_type: Optional[BetaTransferPaymentType] = None
-    _url_result: Optional[str] = None
-    _url_success: Optional[str] = None
-    _url_fail: Optional[str] = None
-    _locale: Optional[BetaTransferLocale] = None
-    _charge_commission: Optional[ChargeCommission] = None
+    _public_key: str | None = None
+    _private_key: str | None = None
+    _payment_type: BetaTransferPaymentType | None = None
+    _url_result: str | None = None
+    _url_success: str | None = None
+    _url_fail: str | None = None
+    _locale: BetaTransferLocale | None = None
+    _charge_commission: ChargeCommission | None = None
     _do_params_validation: bool = True
     _BASE_URL = "https://merchant.betatransfer.io/api"
     _PAYMENT_URL = _BASE_URL + "/payment"
@@ -234,15 +239,15 @@ class BetaTransferPayment(Payment):
         self,
         amount: float,
         description: str = "",
-        id: Optional[str] = None,
-        payment_type: Optional[BetaTransferPaymentType] = None,
-        url_result: Optional[str] = None,
-        url_success: Optional[str] = None,
-        url_fail: Optional[str] = None,
-        locale: Optional[BetaTransferLocale] = None,
-        charge_commission: Optional[ChargeCommission] = None,
+        id: str | None = None,
+        payment_type: BetaTransferPaymentType | None = None,
+        url_result: str | None = None,
+        url_success: str | None = None,
+        url_fail: str | None = None,
+        locale: BetaTransferLocale | None = None,
+        charge_commission: ChargeCommission | None = None,
         validate_params: bool = True,
-        payer_id: Optional[str] = None,
+        payer_id: str | None = None,
     ) -> None:
         """Instantiate BetaTransferPayment class.
 
@@ -306,9 +311,9 @@ class BetaTransferPayment(Payment):
         public_key: str,
         private_key: str,
         payment_type: BetaTransferPaymentType = BetaTransferPaymentType.RUB_P2R,
-        url_result: Optional[str] = None,
-        url_success: Optional[str] = None,
-        url_fail: Optional[str] = None,
+        url_result: str | None = None,
+        url_success: str | None = None,
+        url_fail: str | None = None,
         locale: BetaTransferLocale = BetaTransferLocale.RUSSIAN,
         charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
         do_params_validation: bool = True,
@@ -382,7 +387,7 @@ class BetaTransferPayment(Payment):
         return str(response.json().get("url"))
 
     @classmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         params = {
             "token": cls._public_key,
         }

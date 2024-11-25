@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class PyPaymentException(Exception):
     """Base class for all PyPayment exceptions."""
 
