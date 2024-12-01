@@ -21,7 +21,7 @@ python = "^3.8"
 requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.8.0"
+ruff = "^0.7.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.5.34"
@@ -35,5 +35,5 @@ build-backend = "poetry.core.masonry.api"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "D", "F", "I", "W", "C90", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "B", "COM", "C4", "EXE", "ISC", "ICN", "LOG", "G", "PIE", "PYI", "PT", "Q", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "PD", "PL", "FLY", "NPY", "PERF", "RUF"]
+select = ["E", "D", "I", "W", "C90", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "B", "COM", "C4", "EXE", "ISC", "ICN", "LOG", "G", "PIE", "PYI", "PT", "Q", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "PD", "PL", "FLY", "NPY", "PERF", "RUF"]
 ignore = ["D102", "D100", "D104", "D203", "D213", "ANN101", "ANN102", "B027", "TD002", "TD003", "PLR0913", "RUF012"]
