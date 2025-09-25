@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import timedelta
-from typing import Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any
 
 import requests
 from requests import RequestException
@@ -13,16 +15,18 @@ from pypayment import (
     PaymentStatus,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 class LavaPayment(Payment):
     """Lava payment class."""
 
-    _token: Optional[str] = None
-    _wallet_to: Optional[str] = None
-    _expiration_duration: Optional[timedelta] = None
-    _charge_commission: Optional[ChargeCommission] = None
-    _success_url: Optional[str] = None
-    _fail_url: Optional[str] = None
+    _token: str | None = None
+    _wallet_to: str | None = None
+    _expiration_duration: timedelta | None = None
+    _charge_commission: ChargeCommission | None = None
+    _success_url: str | None = None
+    _fail_url: str | None = None
     _BASE_URL = "https://api.lava.ru"
     _PING_URL = _BASE_URL + "/test/ping"
     _INVOICE_URL = _BASE_URL + "/invoice"
@@ -38,12 +42,12 @@ class LavaPayment(Payment):
         self,
         amount: float,
         description: str = "",
-        id: Optional[str] = None,
-        wallet_to: Optional[str] = None,
-        expiration_duration: Optional[timedelta] = None,
-        charge_commission: Optional[ChargeCommission] = None,
-        success_url: Optional[str] = None,
-        fail_url: Optional[str] = None,
+        id: str | None = None,
+        wallet_to: str | None = None,
+        expiration_duration: timedelta | None = None,
+        charge_commission: ChargeCommission | None = None,
+        success_url: str | None = None,
+        fail_url: str | None = None,
     ) -> None:
         """Authorize LavaPayment class.
 
@@ -80,8 +84,8 @@ class LavaPayment(Payment):
         wallet_to: str,
         expiration_duration: timedelta = timedelta(hours=1),
         charge_commission: ChargeCommission = ChargeCommission.FROM_SELLER,
-        success_url: Optional[str] = None,
-        fail_url: Optional[str] = None,
+        success_url: str | None = None,
+        fail_url: str | None = None,
     ) -> None:
         """Authorize LavaPayment class.
 

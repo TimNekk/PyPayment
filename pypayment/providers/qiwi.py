@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import json
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Mapping, Optional, Tuple
+from typing import Any
 
 import requests
 from requests import RequestException
@@ -30,10 +36,10 @@ class QiwiPaymentType(Enum):
 class QiwiPayment(Payment):
     """Qiwi payment class."""
 
-    _secret_key: Optional[str] = None
-    _theme_code: Optional[str] = None
-    _expiration_duration: Optional[timedelta] = None
-    _payment_type: Optional[QiwiPaymentType] = None
+    _secret_key: str | None = None
+    _theme_code: str | None = None
+    _expiration_duration: timedelta | None = None
+    _payment_type: QiwiPaymentType | None = None
     _API_URL = "https://api.qiwi.com/partner/bill/v1/bills/"
     _STATUS_MAP = {
         "WAITING": PaymentStatus.WAITING,
@@ -46,10 +52,10 @@ class QiwiPayment(Payment):
         self,
         amount: float,
         description: str = "",
-        id: Optional[str] = None,
-        theme_code: Optional[str] = None,
-        expiration_duration: Optional[timedelta] = None,
-        payment_type: Optional[QiwiPaymentType] = None,
+        id: str | None = None,
+        theme_code: str | None = None,
+        expiration_duration: timedelta | None = None,
+        payment_type: QiwiPaymentType | None = None,
     ) -> None:
         """Authorize QiwiPayment class.
 
@@ -79,7 +85,7 @@ class QiwiPayment(Payment):
     def authorize(
         cls,
         secret_key: str,
-        theme_code: Optional[str] = None,
+        theme_code: str | None = None,
         expiration_duration: timedelta = timedelta(hours=1),
         payment_type: QiwiPaymentType = QiwiPaymentType.ALL,
     ) -> None:
@@ -136,7 +142,7 @@ class QiwiPayment(Payment):
         return str(response.json().get("payUrl"))
 
     @classmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         try:
             response = requests.get(
                 cls._API_URL + payment_id,
