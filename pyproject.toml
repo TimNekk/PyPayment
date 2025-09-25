@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypayment"
-version = "1.8.0"
+version = "1.8.1"
 description = "Payment Providers API Wrapper"
 authors = ["Tim <herew26@gmail.com>"]
 license = "Apache-2.0"
@@ -35,5 +35,58 @@ build-backend = "poetry.core.masonry.api"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "D", "I", "W", "C90", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "B", "COM", "C4", "EXE", "ISC", "ICN", "LOG", "G", "PIE", "PYI", "PT", "Q", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "PD", "PL", "FLY", "NPY", "PERF", "RUF"]
-ignore = ["D102", "D100", "D104", "D203", "D213", "ANN101", "ANN102", "B027", "TD002", "TD003", "PLR0913", "RUF012"]
+select = [
+    "E",
+    "D",
+    "I",
+    "W",
+    "C90",
+    "UP",
+    "YTT",
+    "ANN",
+    "ASYNC",
+    "S",
+    "BLE",
+    "B",
+    "COM",
+    "C4",
+    "EXE",
+    "ISC",
+    "ICN",
+    "LOG",
+    "G",
+    "PIE",
+    "PYI",
+    "PT",
+    "Q",
+    "RET",
+    "SLF",
+    "SLOT",
+    "SIM",
+    "TID",
+    "TCH",
+    "INT",
+    "ARG",
+    "PTH",
+    "TD",
+    "PD",
+    "PL",
+    "FLY",
+    "NPY",
+    "PERF",
+    "RUF",
+]
+ignore = [
+    "D102",
+    "D100",
+    "D104",
+    "D203",
+    "D213",
+    "ANN101",
+    "ANN102",
+    "B027",
+    "TD002",
+    "TD003",
+    "PLR0913",
+    "RUF012",
+]
