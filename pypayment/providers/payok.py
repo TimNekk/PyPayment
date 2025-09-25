@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import hashlib
 import urllib.parse
 from enum import Enum
-from typing import Any, Mapping, Optional, Tuple
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import requests
 from requests import RequestException
@@ -72,9 +77,9 @@ class PayOkPayment(Payment):
     _api_id: int
     _shop_id: int
     _shop_secret_key: str
-    _payment_type: Optional[PayOkPaymentType] = None
-    _currency: Optional[PayOkCurrency] = None
-    _success_url: Optional[str] = None
+    _payment_type: PayOkPaymentType | None = None
+    _currency: PayOkCurrency | None = None
+    _success_url: str | None = None
     _BASE_URL = "https://payok.io"
     _PAY_URL = _BASE_URL + "/pay"
     _API_URL = _BASE_URL + "/api"
@@ -89,10 +94,10 @@ class PayOkPayment(Payment):
         self,
         amount: float,
         description: str = "",
-        id: Optional[str] = None,
-        payment_type: Optional[PayOkPaymentType] = None,
-        currency: Optional[PayOkCurrency] = None,
-        success_url: Optional[str] = None,
+        id: str | None = None,
+        payment_type: PayOkPaymentType | None = None,
+        currency: PayOkCurrency | None = None,
+        success_url: str | None = None,
     ) -> None:
         """Authorize PayOkPayment class.
 
@@ -127,7 +132,7 @@ class PayOkPayment(Payment):
         shop_secret_key: str,
         payment_type: PayOkPaymentType = PayOkPaymentType.CARD,
         currency: PayOkCurrency = PayOkCurrency.RUB,
-        success_url: Optional[str] = None,
+        success_url: str | None = None,
     ) -> None:
         """Authorize PayOkPayment class.
 
@@ -175,7 +180,7 @@ class PayOkPayment(Payment):
         return self._PAY_URL + "?" + urllib.parse.urlencode(data)
 
     @classmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         data = {
             "API_ID": cls._api_id,
             "API_KEY": cls._api_key,

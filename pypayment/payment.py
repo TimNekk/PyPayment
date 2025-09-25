@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
 from uuid import uuid4
 
 from pypayment import NotAuthorized, PaymentNotFound, PaymentStatus
@@ -11,7 +12,7 @@ class Payment(ABC):
     authorized = False
     """Is payment class authorized."""
 
-    def __init__(self, amount: float, description: str = "", id: Optional[str] = None) -> None:
+    def __init__(self, amount: float, description: str = "", id: str | None = None) -> None:
         """Initialize Payment class."""
         self._check_authorization()
 
@@ -27,7 +28,7 @@ class Payment(ABC):
         self.status: PaymentStatus = PaymentStatus.WAITING
         """Payment status. Use update() to update it."""
 
-        self.income: Optional[float] = None
+        self.income: float | None = None
         """Payment income. Use update() to update it."""
 
         self._validate_params()
@@ -37,7 +38,7 @@ class Payment(ABC):
 
     @classmethod
     @abstractmethod
-    def get_status_and_income(cls, payment_id: str) -> Tuple[Optional[PaymentStatus], float]:
+    def get_status_and_income(cls, payment_id: str) -> tuple[PaymentStatus | None, float]:
         """Return payment status and income.
 
         :param payment_id: Payment ID.
