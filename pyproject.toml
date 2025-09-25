@@ -13,7 +13,7 @@ classifiers = [
 ]
 keywords = ["payment", "api", "wrapper", "payment-gateway", "payment-provider"]
 homepage = "https://github.com/TimNekk/pypayment"
-documentation = "https://pypayment.readthedocs.io/"
+documentation = "https://timnekk.github.io/PyPayment/"
 repository = "https://github.com/TimNekk/pypayment.git"
 
 [tool.poetry.dependencies]

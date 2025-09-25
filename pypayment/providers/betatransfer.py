@@ -37,6 +37,12 @@ class BetaTransferCurrency(Enum):
     """Uzbekistani so`m."""
     BYN = "BYN"
     """Belarusian ruble."""
+    AZN = "AZN"
+    """Azerbaijani manat."""
+    TJS = "TJS"
+    """Tajikistani somoni."""
+    KGS = "KGS"
+    """Kyrgyzstani som."""
 
 
 @dataclass
@@ -189,6 +195,30 @@ class BetaTransferPaymentType(Enum):
         max_amount=5000,
     )
     """BYN card payment type."""
+    AZN_CARD = BetaTransferGateway(
+        name="P2R_AZN",
+        currency=BetaTransferCurrency.AZN,
+        commission_in_percent=9,
+        min_amount=10,
+        max_amount=5000,
+    )
+    """AZN card payment type."""
+    TJS_CARD = BetaTransferGateway(
+        name="P2R_TJS",
+        currency=BetaTransferCurrency.TJS,
+        commission_in_percent=9,
+        min_amount=100,
+        max_amount=10000,
+    )
+    """TJS card payment type."""
+    KGS_CARD = BetaTransferGateway(
+        name="P2R_KGS",
+        currency=BetaTransferCurrency.KGS,
+        commission_in_percent=9,
+        min_amount=500,
+        max_amount=150000,
+    )
+    """KGS card payment type."""
 
 
 class BetaTransferLocale(Enum):
@@ -302,8 +332,9 @@ class BetaTransferPayment(Payment):
         if invalid_min_amount or invalid_max_amount:
             payment_type_name = f"{self._payment_type.name} ({self._payment_type.value.name})"
             currency_name = self._payment_type.value.currency.value
-            raise PaymentCreationError(f"Amount for {payment_type_name} must be between "
-                                       f"{min_amount} and {max_amount} {currency_name}!")
+            raise PaymentCreationError(
+                f"Amount for {payment_type_name} must be between {min_amount} and {max_amount} {currency_name}!"
+            )
 
     @classmethod
     def authorize(
