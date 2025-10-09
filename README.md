@@ -10,10 +10,6 @@
             alt="Python 3"
             src="https://img.shields.io/pypi/pyversions/pypayment?color=49b04f&style=flat-square"
         ></a>
-        <a href="https://github.com/TimNekk/PyPayment/blob/main/.github/workflows/lint.yml" target="_blank"><img
-            alt="Lint"
-            src="https://img.shields.io/github/actions/workflow/status/TimNekk/PyPayment/lint.yml?color=49b04f&label=Lint&style=flat-square"
-        ></a>
         <a href="https://github.com/astral-sh/ruff" target="_blank"><img
             alt="Ruff"
             src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&color=49b04f&style=flat-square"
